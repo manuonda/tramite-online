@@ -1,0 +1,316 @@
+// Atlantis-style Table Components
+// ===============================
+
+// DataTable Enhancement
+.p-datatable {
+    border-radius: var(--radius-lg, 0.75rem) !important;
+    overflow: hidden;
+    border: var(--border-default) !important;
+    background: var(--bg-surface, var(--surface-card)) !important;
+
+    // Header
+    .p-datatable-thead > tr > th {
+        background: var(--bg-surface-hover, var(--surface-hover)) !important;
+        border-bottom: var(--border-emphasis) !important;
+        border-top: none !important;
+        padding: 0.875rem 1rem !important;
+        font-size: var(--font-size-sm, 0.875rem) !important;
+        font-weight: var(--font-semibold, 600) !important;
+        color: var(--text-secondary, var(--text-color)) !important;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+
+        &:first-child {
+            border-left: none !important;
+        }
+
+        &:last-child {
+            border-right: none !important;
+        }
+
+        // Sortable headers
+        &.p-sortable-column {
+            &:hover {
+                background: var(--bg-surface, var(--surface-card)) !important;
+                color: var(--text-primary, var(--text-color)) !important;
+            }
+
+            &.p-highlight {
+                background: var(--bg-surface, var(--surface-card)) !important;
+                color: var(--primary-color) !important;
+            }
+        }
+    }
+
+    // Body
+    .p-datatable-tbody > tr {
+        border-bottom: var(--border-subtle) !important;
+        transition: background-color 0.15s ease;
+
+        &:last-child {
+            border-bottom: none !important;
+        }
+
+        > td {
+            padding: 0.875rem 1rem !important;
+            font-size: var(--font-size-base, 1rem) !important;
+            color: var(--text-primary, var(--text-color)) !important;
+            border-left: none !important;
+            border-right: none !important;
+
+            &:first-child {
+                border-left: none !important;
+            }
+
+            &:last-child {
+                border-right: none !important;
+            }
+        }
+
+        // Hover state
+        &:hover {
+            background: var(--bg-surface-hover, var(--surface-hover)) !important;
+        }
+
+        // Selected state
+        &.p-highlight {
+            background: rgba(var(--primary-color-rgb, 59, 130, 246), 0.05) !important;
+            color: var(--text-primary, var(--text-color)) !important;
+
+            &:hover {
+                background: rgba(var(--primary-color-rgb, 59, 130, 246), 0.08) !important;
+            }
+        }
+    }
+
+    // Footer
+    .p-datatable-tfoot > tr > td {
+        background: var(--bg-surface-hover, var(--surface-hover)) !important;
+        border-top: var(--border-emphasis) !important;
+        border-bottom: none !important;
+        padding: 0.875rem 1rem !important;
+        font-size: var(--font-size-sm, 0.875rem) !important;
+        font-weight: var(--font-semibold, 600) !important;
+        color: var(--text-secondary, var(--text-color)) !important;
+    }
+
+    // Empty Message
+    .p-datatable-emptymessage {
+        text-align: center !important;
+        padding: var(--space-12, 3rem) !important;
+        color: var(--text-tertiary, var(--text-color-secondary)) !important;
+
+        i {
+            font-size: 3rem;
+            color: var(--text-muted, var(--text-color-secondary));
+            margin-bottom: var(--space-4, 1rem);
+        }
+    }
+}
+
+// Paginator
+.p-paginator {
+    background: var(--bg-surface, var(--surface-card)) !important;
+    border: none !important;
+    border-top: var(--border-subtle) !important;
+    padding: var(--space-4, 1rem) !important;
+    border-radius: 0 0 var(--radius-lg, 0.75rem) var(--radius-lg, 0.75rem) !important;
+
+    .p-paginator-pages,
+    .p-paginator-page,
+    .p-paginator-prev,
+    .p-paginator-next,
+    .p-paginator-first,
+    .p-paginator-last {
+        min-width: 2.5rem !important;
+        height: 2.5rem !important;
+        border-radius: var(--radius-md, 0.5rem) !important;
+        border: none !important;
+        margin: 0 var(--space-1, 0.25rem) !important;
+        font-size: var(--font-size-sm, 0.875rem) !important;
+        font-weight: var(--font-medium, 500) !important;
+        transition: background-color 0.15s ease !important;
+
+        &:hover:not(.p-disabled) {
+            background: var(--bg-surface-hover, var(--surface-hover)) !important;
+            color: var(--text-primary, var(--text-color)) !important;
+        }
+
+        &.p-highlight {
+            background: var(--primary-color) !important;
+            color: var(--primary-contrast-color) !important;
+
+            &:hover {
+                opacity: 0.9;
+            }
+        }
+    }
+
+    .p-dropdown {
+        margin-left: var(--space-2, 0.5rem) !important;
+        margin-right: var(--space-2, 0.5rem) !important;
+    }
+}
+
+// Table Actions (buttons in cells)
+.table-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-md, 0.5rem);
+    border: none;
+    background: transparent;
+    color: var(--text-secondary, var(--text-color-secondary));
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+
+    &:hover {
+        background: var(--bg-surface-hover, var(--surface-hover));
+        color: var(--text-primary, var(--text-color));
+    }
+
+    &.danger {
+        &:hover {
+            background: var(--color-error-bg, #FEE2E2);
+            color: var(--color-error, #EF4444);
+        }
+    }
+
+    &.success {
+        &:hover {
+            background: var(--color-success-bg, #D1FAE5);
+            color: var(--color-success, #10B981);
+        }
+    }
+
+    i {
+        font-size: 1rem;
+    }
+}
+
+// Status Badges for tables
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: var(--font-medium, 500);
+    line-height: 1;
+
+    &.status-success {
+        background: var(--color-success-bg, #D1FAE5);
+        color: var(--color-success, #10B981);
+    }
+
+    &.status-warning {
+        background: var(--color-warning-bg, #FEF3C7);
+        color: var(--color-warning, #F59E0B);
+    }
+
+    &.status-error {
+        background: var(--color-error-bg, #FEE2E2);
+        color: var(--color-error, #EF4444);
+    }
+
+    &.status-info {
+        background: var(--color-info-bg, #DBEAFE);
+        color: var(--color-info, #3B82F6);
+    }
+
+    &.status-neutral {
+        background: var(--bg-surface-hover, var(--surface-hover));
+        color: var(--text-secondary, var(--text-color-secondary));
+    }
+
+    i {
+        margin-right: 0.25rem;
+        font-size: 0.625rem;
+    }
+}
+
+// Table Toolbar
+.table-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4, 1rem) var(--space-6, 1.5rem);
+    background: var(--bg-surface, var(--surface-card));
+    border: var(--border-default);
+    border-bottom: none;
+    border-radius: var(--radius-lg, 0.75rem) var(--radius-lg, 0.75rem) 0 0;
+
+    .table-title {
+        font-size: var(--font-size-lg, 1.125rem);
+        font-weight: var(--font-semibold, 600);
+        color: var(--text-primary, var(--text-color));
+    }
+
+    .table-actions {
+        display: flex;
+        gap: var(--space-2, 0.5rem);
+    }
+}
+
+// Responsive table wrapper
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    .p-datatable {
+        min-width: 600px;
+    }
+}
+
+// Simple Table (non-PrimeNG)
+table.simple-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background: var(--bg-surface, var(--surface-card));
+    border: var(--border-default);
+    border-radius: var(--radius-lg, 0.75rem);
+    overflow: hidden;
+
+    thead {
+        tr {
+            background: var(--bg-surface-hover, var(--surface-hover));
+
+            th {
+                padding: 0.875rem 1rem;
+                text-align: left;
+                font-size: var(--font-size-sm, 0.875rem);
+                font-weight: var(--font-semibold, 600);
+                color: var(--text-secondary, var(--text-color));
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+                border-bottom: var(--border-emphasis);
+            }
+        }
+    }
+
+    tbody {
+        tr {
+            border-bottom: var(--border-subtle);
+            transition: background-color 0.15s ease;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &:hover {
+                background: var(--bg-surface-hover, var(--surface-hover));
+            }
+
+            td {
+                padding: 0.875rem 1rem;
+                font-size: var(--font-size-base, 1rem);
+                color: var(--text-primary, var(--text-color));
+            }
+        }
+    }
+}

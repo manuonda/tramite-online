@@ -14,7 +14,6 @@ import { PermissionService } from '../../../../auth/services/permission.service'
   selector: 'app-admin-menu',
   standalone: true,
   imports: [CommonModule, AppMenuitem, RouterModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ul class="layout-menu">
       @for (item of filteredModel(); track item.label) {

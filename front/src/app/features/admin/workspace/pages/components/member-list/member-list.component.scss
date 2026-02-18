@@ -1,0 +1,65 @@
+.member-list {
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+
+    h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+  }
+
+  .member-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .member-name {
+      font-weight: 500;
+    }
+  }
+
+  ::ng-deep .role-dropdown {
+    min-width: 150px;
+  }
+
+  .role-chip {
+    &.role-owner {
+      background-color: var(--red-100);
+      color: var(--red-900);
+    }
+
+    &.role-admin {
+      background-color: var(--orange-100);
+      color: var(--orange-900);
+    }
+
+    &.role-member {
+      background-color: var(--blue-100);
+      color: var(--blue-900);
+    }
+
+    &.role-viewer {
+      background-color: var(--gray-100);
+      color: var(--gray-900);
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .empty-state {
+    padding: 3rem 1rem;
+    text-align: center;
+
+    p {
+      margin: 1rem 0;
+      color: var(--text-color-secondary);
+    }
+  }
+}

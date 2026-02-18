@@ -21,7 +21,6 @@ import { LayoutService } from '../../../../../layout/service/layout.service';
   selector: 'app-admin-sidebar',
   standalone: true,
   imports: [AdminMenuComponent, RouterModule],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="layout-sidebar">
       <app-admin-menu />

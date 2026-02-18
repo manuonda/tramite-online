@@ -1,0 +1,17 @@
+// Estilos mínimos - la mayoría usando Tailwind
+::ng-deep {
+  // Asegurar que los labels sean consistentes
+  label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+  }
+
+  // Estilos de error
+  .error {
+    p-message {
+      display: block;
+      margin-top: 0.25rem;
+    }
+  }
+}

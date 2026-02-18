@@ -1,0 +1,179 @@
+<div class="workspace-detail-page">
+  <p-toast />
+  <p-confirmDialog />
+
+  @if (!loading() && workspace()) {
+    <!-- Header -->
+    <div class="page-header">
+      <div class="workspace-header">
+        <div
+          class="workspace-icon-large"
+          [style.background-color]="getWorkspaceColor(workspace()!)"
+        >
+          <i [class]="'pi ' + getWorkspaceIcon(workspace()!)"></i>
+        </div>
+        <div class="workspace-meta">
+          <h1>{{ workspace()!.name }}</h1>
+          <p class="workspace-description">{{ workspace()!.description || 'No description' }}</p>
+          <div class="workspace-stats">
+            <p-chip
+              [label]="workspace()!.memberCount + ' members'"
+              icon="pi pi-users"
+              styleClass="chip-info"
+            ></p-chip>
+            <p-chip
+              [label]="workspace()!.formCount + ' forms'"
+              icon="pi pi-file"
+              styleClass="chip-info"
+            ></p-chip>
+            @if (workspace()!.isArchived) {
+              <p-chip label="Archived" styleClass="chip-warning"></p-chip>
+            }
+          </div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <p-button
+          label="Edit"
+          icon="pi pi-pencil"
+          severity="secondary"
+          [outlined]="true"
+          (onClick)="onEdit()"
+        ></p-button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <p-tabs value="0" styleClass="workspace-tabs">
+      <p-tablist>
+        <p-tab value="0">Overview</p-tab>
+        <p-tab value="1">Members</p-tab>
+        <p-tab value="2">Forms</p-tab>
+        <p-tab value="3">Settings</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <!-- Overview Tab -->
+        <p-tabpanel value="0">
+        <div class="tab-content">
+          <div class="overview-grid">
+            <!-- Info Card -->
+            <p-card header="Information">
+              <div class="info-list">
+                <div class="info-item">
+                  <span class="info-label">Workspace ID</span>
+                  <span class="info-value">{{ workspace()!.id }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">URL Slug</span>
+                  <span class="info-value">/{{ workspace()!.slug }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Created</span>
+                  <span class="info-value">{{ workspace()!.createdAt | date: 'medium' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="info-label">Last Updated</span>
+                  <span class="info-value">{{ workspace()!.updatedAt | date: 'medium' }}</span>
+                </div>
+              </div>
+            </p-card>
+
+            <!-- Stats Card -->
+            <p-card header="Statistics">
+              <div class="stats-list">
+                <div class="stat-item">
+                  <i class="pi pi-users stat-icon"></i>
+                  <div class="stat-content">
+                    <span class="stat-value">{{ workspace()!.memberCount }}</span>
+                    <span class="stat-label">Team Members</span>
+                  </div>
+                </div>
+                <div class="stat-item">
+                  <i class="pi pi-file stat-icon"></i>
+                  <div class="stat-content">
+                    <span class="stat-value">{{ workspace()!.formCount }}</span>
+                    <span class="stat-label">Forms</span>
+                  </div>
+                </div>
+              </div>
+            </p-card>
+          </div>
+        </div>
+        </p-tabpanel>
+
+        <!-- Members Tab -->
+        <p-tabpanel value="1">
+        <div class="tab-content">
+          <app-member-list
+            [members]="members()"
+            [canManage]="canManage()"
+            [currentUserId]="currentUserId()"
+            (addMember)="onAddMember()"
+            (changeRole)="onChangeRole($event)"
+            (removeMember)="onRemoveMember($event)"
+          ></app-member-list>
+        </div>
+        </p-tabpanel>
+
+        <!-- Forms Tab -->
+        <p-tabpanel value="2">
+        <div class="tab-content">
+          <div class="empty-state">
+            <i class="pi pi-file" style="font-size: 4rem; color: var(--text-color-secondary)"></i>
+            <h3>No forms yet</h3>
+            <p>Forms will be available in the next phase</p>
+          </div>
+        </div>
+        </p-tabpanel>
+
+        <!-- Settings Tab -->
+        <p-tabpanel value="3">
+        <div class="tab-content">
+          <p-card header="Danger Zone">
+            <div class="danger-zone">
+              <div class="danger-item">
+                <div class="danger-info">
+                  <h4>Archive Workspace</h4>
+                  <p>Archive this workspace. It will be hidden from the main list but can be restored later.</p>
+                </div>
+                <p-button
+                  label="Archive"
+                  icon="pi pi-inbox"
+                  severity="warn"
+                  [outlined]="true"
+                  (onClick)="onArchive()"
+                ></p-button>
+              </div>
+              <div class="danger-item">
+                <div class="danger-info">
+                  <h4>Delete Workspace</h4>
+                  <p>Permanently delete this workspace and all its data. This action cannot be undone.</p>
+                </div>
+                <p-button
+                  label="Delete"
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [outlined]="true"
+                  (onClick)="onDelete()"
+                ></p-button>
+              </div>
+            </div>
+          </p-card>
+        </div>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
+
+    <!-- Member Dialog -->
+    <app-member-dialog
+      [(visible)]="showMemberDialog"
+      (submit)="onSubmitMember($event)"
+    ></app-member-dialog>
+
+  } @else if (loading()) {
+    <div class="loading-state">
+      <i class="pi pi-spin pi-spinner" style="font-size: 3rem"></i>
+      <p>Loading workspace...</p>
+    </div>
+  }
+</div>

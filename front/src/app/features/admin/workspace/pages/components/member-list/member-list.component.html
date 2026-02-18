@@ -1,0 +1,117 @@
+<div class="member-list">
+  <div class="list-header">
+    <h3>Team Members</h3>
+    @if (canManage) {
+      <p-button
+        label="Add Member"
+        icon="pi pi-user-plus"
+        (onClick)="onAddMember()"
+        size="small"
+      ></p-button>
+    }
+  </div>
+
+  <p-table
+    [value]="members"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    styleClass="p-datatable-sm"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Member</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Joined</th>
+        @if (canManage) {
+          <th style="width: 8rem">Actions</th>
+        }
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-member>
+      <tr>
+        <!-- Member -->
+        <td>
+          <div class="member-info">
+            @if (member.userAvatar) {
+              <p-avatar
+                [image]="member.userAvatar"
+                shape="circle"
+                size="normal"
+              ></p-avatar>
+            } @else {
+              <p-avatar
+                [label]="getAvatarLabel(member.userName)"
+                shape="circle"
+                size="normal"
+                styleClass="bg-primary"
+              ></p-avatar>
+            }
+            <span class="member-name">{{ member.userName }}</span>
+          </div>
+        </td>
+
+        <!-- Email -->
+        <td>{{ member.userEmail }}</td>
+
+        <!-- Role -->
+        <td>
+          @if (canChangeRole(member)) {
+            <p-select
+              [options]="roleOptions"
+              [(ngModel)]="member.role"
+              optionLabel="label"
+              optionValue="value"
+              (onChange)="onChangeRole(member, $event.value)"
+              styleClass="role-dropdown"
+            ></p-select>
+          } @else {
+            <p-chip
+              [label]="getRoleLabel(member.role)"
+              [styleClass]="'role-chip role-' + member.role"
+            ></p-chip>
+          }
+        </td>
+
+        <!-- Joined -->
+        <td>{{ member.joinedAt | date: 'short' }}</td>
+
+        <!-- Actions -->
+        @if (canManage) {
+          <td>
+            <div class="action-buttons">
+              @if (canRemove(member)) {
+                <p-button
+                  icon="pi pi-trash"
+                  severity="danger"
+                  [text]="true"
+                  [rounded]="true"
+                  size="small"
+                  (onClick)="onRemoveMember(member)"
+                  pTooltip="Remove member"
+                ></p-button>
+              }
+            </div>
+          </td>
+        }
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td [attr.colspan]="canManage ? 5 : 4" class="text-center">
+          <div class="empty-state">
+            <i class="pi pi-users" style="font-size: 3rem; color: var(--text-color-secondary)"></i>
+            <p>No members found</p>
+            @if (canManage) {
+              <p-button
+                label="Add First Member"
+                icon="pi pi-user-plus"
+                (onClick)="onAddMember()"
+                [outlined]="true"
+              ></p-button>
+            }
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

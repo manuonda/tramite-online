@@ -1,0 +1,63 @@
+// Estilos personalizados para el breadcrumb
+::ng-deep {
+  .breadcrumb-custom {
+    .p-breadcrumb {
+      background: transparent !important;
+      border: none !important;
+      padding: 0 !important;
+
+      .p-breadcrumb-list {
+        margin: 0;
+        padding: 0;
+
+        .p-breadcrumb-item {
+          .p-breadcrumb-item-link {
+            color: #6b7280 !important;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+
+            &:hover {
+              color: #374151 !important;
+              background-color: rgba(59, 130, 246, 0.1);
+              transform: translateY(-1px);
+              box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+            }
+
+            .p-breadcrumb-item-icon {
+              color: #3b82f6 !important;
+              margin-right: 0.5rem;
+              transition: all 0.3s ease;
+            }
+          }
+
+          .p-breadcrumb-item-separator {
+            color: #9ca3af !important;
+            margin: 0 0.5rem;
+          }
+
+          &:last-child .p-breadcrumb-item-link {
+            color: #3b82f6 !important;
+            font-weight: 600;
+            background-color: rgba(59, 130, 246, 0.1);
+            cursor: default;
+
+            &:hover {
+              transform: none;
+              box-shadow: none;
+            }
+          }
+
+          &:first-child .p-breadcrumb-item-link {
+            &:hover .p-breadcrumb-item-icon {
+              color: #1d4ed8 !important;
+              transform: scale(1.1);
+            }
+          }
+        }
+      }
+    }
+  }
+}

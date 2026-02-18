@@ -1,0 +1,122 @@
+@if (isLoading()) {
+  <div class="flex justify-center items-center min-h-96">
+    <div class="flex flex-col items-center gap-4 p-8 bg-white rounded-2xl shadow-lg border border-gray-200">
+      <div class="relative">
+        <div class="absolute inset-0 bg-blue-500 rounded-full blur-md opacity-20 animate-pulse"></div>
+        <div class="w-16 h-16 border-4 border-blue-200 rounded-full animate-spin border-t-blue-600"></div>
+      </div>
+      <div class="text-center">
+        <h4 class="text-lg font-semibold text-gray-800 mb-1">Cargando...</h4>
+        <p class="text-sm text-gray-600">Obteniendo datos del workspace</p>
+      </div>
+    </div>
+  </div>
+} @else if (hasError()) {
+  <div class="flex justify-center items-center min-h-96">
+    <div class="card max-w-md w-full border-l-4 border-red-500 shadow-lg">
+      <div class="p-6 text-center">
+        <div class="bg-red-100 p-4 rounded-full w-16 h-16 mx-auto mb-4">
+          <i class="pi pi-exclamation-triangle text-red-600 text-2xl"></i>
+        </div>
+        <h4 class="font-semibold text-lg text-gray-800 mb-2">Error al Cargar</h4>
+        <p class="text-gray-600 mb-4">No se pudo cargar la información del workspace</p>
+        <p-button
+          label="Volver al Listado"
+          icon="pi pi-arrow-left"
+          severity="secondary"
+          [outlined]="true"
+          class="w-full"
+          (onClick)="onCancel()"
+        />
+      </div>
+    </div>
+  </div>
+} @else {
+  <!-- Breadcrumb -->
+  <div class="mb-6">
+    <div class="bg-gray-50 rounded-lg p-3 border border-gray-200 shadow-sm">
+      <p-breadcrumb
+        class="breadcrumb-custom"
+        [model]="breadcrumbItems()"
+        [home]="home"
+        [style]="{'background': 'transparent', 'border': 'none', 'padding': '0'}"
+      />
+    </div>
+  </div>
+
+  <!-- Header Principal -->
+  <div class="mb-8">
+    <div class="flex items-center gap-4">
+      <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-3 rounded-full text-white shadow-lg">
+        <i class="pi pi-pencil text-lg"></i>
+      </div>
+      <div>
+        <span class="text-xl font-bold text-gray-800">Editar Workspace</span>
+        <div class="flex items-center gap-2 text-sm text-gray-600 mt-1">
+          <i class="pi pi-briefcase text-xs"></i>
+          <span>{{ workspace()?.name }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Card -->
+  <div class="card border-l-4 border-blue-500 shadow-lg overflow-hidden relative">
+    <!-- Loading Overlay -->
+    @if (saving()) {
+      <div class="absolute inset-0 bg-white/80 flex items-center justify-center z-10 rounded-lg">
+        <div class="bg-white rounded-xl p-6 shadow-lg flex flex-col items-center gap-3 border border-gray-200">
+          <div class="w-12 h-12 border-4 border-blue-200 rounded-full animate-spin border-t-blue-600"></div>
+          <div class="text-center">
+            <h3 class="text-base font-semibold text-gray-800">Guardando...</h3>
+            <p class="text-sm text-gray-500">Por favor espere</p>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Form Content -->
+    <div class="p-6">
+      <app-workspace-form
+        #workspaceForm
+        [workspace]="workspace()!"
+        (cancel)="onCancel()"
+      />
+    </div>
+
+    <!-- Botones de Acción -->
+    <div class="border-t border-gray-200 px-6 py-4 bg-gray-50">
+      <div class="flex flex-col sm:flex-row gap-3 justify-between items-center">
+        <!-- Mensaje de campos requeridos -->
+        <div class="flex items-center gap-2 text-sm text-gray-600">
+          <i class="pi pi-info-circle text-blue-500"></i>
+          <span>Los campos con <span class="text-red-500 font-semibold">*</span> son obligatorios</span>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex gap-2 w-full sm:w-auto">
+          <p-button
+            label="Volver"
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            [outlined]="true"
+            (onClick)="onCancel()"
+            class="flex-1 sm:flex-initial"
+          />
+
+          <p-button
+            label="Guardar Datos"
+            icon="pi pi-save"
+            (onClick)="onSubmit()"
+            severity="success"
+            [loading]="saving()"
+            class="flex-1 sm:flex-initial font-semibold"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<p-toast />
+<p-confirmDialog />

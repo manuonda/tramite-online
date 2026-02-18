@@ -26,7 +26,6 @@ import { getUserInitials } from '../../../../auth/models/user.model';
     AvatarModule,
     MenuModule,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="layout-topbar">
       <div class="layout-topbar-logo-container">

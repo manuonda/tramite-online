@@ -1,0 +1,273 @@
+<div class="workspace-list-container">
+  <p-toast />
+  <p-confirmDialog />
+
+  <!-- Breadcrumb Navigation -->
+  <div class="breadcrumb-section">
+    <p-breadcrumb [model]="breadcrumbItems" [home]="{icon: 'pi pi-home', routerLink: '/admin/dashboard'}"></p-breadcrumb>
+  </div>
+
+  <!-- Page Header with Icon -->
+  <div class="page-header">
+    <div class="header-icon">
+      <i class="pi pi-briefcase"></i>
+    </div>
+    <h1 class="page-title">Gestión de Workspaces</h1>
+  </div>
+
+  <!-- Collapsible Filters Section -->
+  <div class="filters-section">
+    <div class="filters-header" (click)="toggleFilters()">
+      <div class="filters-title">
+        <i class="pi pi-filter"></i>
+        <span>Filtros de Búsqueda</span>
+      </div>
+      <button class="filter-toggle" type="button">
+        <i [class]="filtersExpanded() ? 'pi pi-minus' : 'pi pi-plus'"></i>
+      </button>
+    </div>
+
+    @if (filtersExpanded()) {
+      <div class="filters-content">
+        <div class="filter-row">
+          <div class="filter-field">
+            <label for="searchName">Nombre</label>
+            <input
+              id="searchName"
+              pInputText
+              type="text"
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="searchQuery.set($event)"
+              placeholder="Buscar por nombre o descripción..."
+              class="w-full"
+            />
+          </div>
+
+          <div class="filter-field checkbox-field">
+            <p-checkbox
+              [(ngModel)]="showArchived"
+              (ngModelChange)="showArchived.set($event)"
+              [binary]="true"
+              inputId="showArchived"
+              label="Mostrar archivados"
+            ></p-checkbox>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Context Menu -->
+  <p-menu #contextMenu [model]="menuItems" [popup]="true"></p-menu>
+
+  <!-- Table Card -->
+  <div class="table-card">
+    <!-- Table Header -->
+    <div class="table-header">
+      <div class="table-title">
+        <div class="title-icon">
+          <i class="pi pi-table"></i>
+        </div>
+        <h2>Listado de Workspaces</h2>
+      </div>
+
+      <div class="table-actions">
+        <p-button
+          label="Nueva Workspace"
+          icon="pi pi-plus"
+          severity="success"
+          size="small"
+          class="font-semibold shadow-md hover:shadow-lg transition-all duration-200"
+          (onClick)="onCreate()"
+        />
+        <p-button
+          label="Exportar"
+          icon="pi pi-download"
+          severity="secondary"
+          [outlined]="true"
+          size="small"
+          class="shadow-md hover:shadow-lg transition-all duration-200"
+          [disabled]="!filteredWorkspaces() || filteredWorkspaces().length === 0"
+          (onClick)="onExport()"
+        />
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-bar">
+      <span class="p-input-icon-left w-full">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          [(ngModel)]="searchQuery"
+          (ngModelChange)="searchQuery.set($event)"
+          placeholder="Buscar en tabla..."
+          class="w-full"
+        />
+      </span>
+    </div>
+
+    <!-- Data Table -->
+    <p-table
+      [value]="filteredWorkspaces()"
+      [loading]="loading()"
+      [(selection)]="selectedWorkspaces"
+      (selectionChange)="selectedWorkspaces.set($event)"
+      dataKey="id"
+      [tableStyle]="{ 'min-width': '60rem' }"
+      styleClass="workspace-table"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 20, 30, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} workspaces"
+      [globalFilterFields]="['name', 'description', 'slug']"
+      #dt
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 3rem">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th style="width: 3rem">ID</th>
+          <th>
+            <div class="column-header">
+              <i class="pi pi-briefcase"></i>
+              <span>Workspace</span>
+            </div>
+          </th>
+          <th>
+            <div class="column-header">
+              <i class="pi pi-align-left"></i>
+              <span>Descripción</span>
+            </div>
+          </th>
+          <th style="width: 8rem">
+            <div class="column-header">
+              <i class="pi pi-users"></i>
+              <span>Miembros</span>
+            </div>
+          </th>
+          <th style="width: 8rem">
+            <div class="column-header">
+              <i class="pi pi-file"></i>
+              <span>Formularios</span>
+            </div>
+          </th>
+          <th style="width: 10rem">
+            <div class="column-header">
+              <i class="pi pi-calendar"></i>
+              <span>Creado</span>
+            </div>
+          </th>
+          <th style="width: 8rem" class="text-center">
+            <i class="pi pi-cog"></i>
+            <span>Acciones</span>
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-workspace let-rowIndex="rowIndex">
+        <tr class="workspace-row">
+          <td>
+            <p-tableCheckbox [value]="workspace"></p-tableCheckbox>
+          </td>
+
+          <td>
+            <span class="row-id">#{{ rowIndex + 1 }}</span>
+          </td>
+
+          <td>
+            <div class="workspace-cell">
+              <div
+                class="workspace-badge"
+                [style.background-color]="getWorkspaceColor(workspace)"
+              >
+                <i [class]="'pi ' + getWorkspaceIcon(workspace)"></i>
+              </div>
+              <div class="workspace-info">
+                <span class="workspace-name">{{ workspace.name }}</span>
+                <span class="workspace-slug">/{{ workspace.slug }}</span>
+              </div>
+            </div>
+          </td>
+
+          <td>
+            <span class="description-text">{{ workspace.description || 'Sin descripción' }}</span>
+          </td>
+
+          <td>
+            <div class="stat-cell">
+              <i class="pi pi-users stat-icon"></i>
+              <span class="stat-value">{{ workspace.memberCount }}</span>
+            </div>
+          </td>
+
+          <td>
+            <div class="stat-cell">
+              <i class="pi pi-file stat-icon"></i>
+              <span class="stat-value">{{ workspace.formCount }}</span>
+            </div>
+          </td>
+
+          <td>
+            <span class="date-text">{{ workspace.createdAt | date: 'dd/MM/yyyy' }}</span>
+          </td>
+
+          <td>
+            <div class="action-buttons">
+              <p-button
+                icon="pi pi-pencil"
+                severity="info"
+                [rounded]="true"
+                [outlined]="true"
+                size="small"
+                pTooltip="Editar"
+                tooltipPosition="top"
+                (onClick)="onEdit(workspace)"
+              />
+              <p-button
+                icon="pi pi-ellipsis-v"
+                severity="secondary"
+                [rounded]="true"
+                [outlined]="true"
+                size="small"
+                pTooltip="Más opciones"
+                tooltipPosition="top"
+                (onClick)="showMenu($event, workspace)"
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8">
+            <div class="empty-state">
+              <i class="pi pi-briefcase empty-icon"></i>
+              <h3>No se encontraron workspaces</h3>
+              <p class="empty-description">
+                @if (searchQuery()) {
+                  No hay resultados para tu búsqueda. Intenta con otros términos.
+                } @else {
+                  Comienza creando tu primer workspace para organizar tus formularios.
+                }
+              </p>
+              @if (!searchQuery()) {
+                <button
+                  pButton
+                  label="Crear Workspace"
+                  icon="pi pi-plus"
+                  class="p-button-success"
+                  (click)="onCreate()"
+                ></button>
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

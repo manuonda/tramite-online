@@ -11,6 +11,7 @@
 
 import { Routes } from '@angular/router';
 import { authGuard } from './app/core/auth/guards/auth.guard';
+import { permissionGuard } from './app/core/auth/guards/permission.guard';
 
 export const appRoutes: Routes = [
   // PUBLIC ROUTES (with PublicLayout)
@@ -65,16 +66,15 @@ export const appRoutes: Routes = [
           ),
         title: 'Dashboard - Tramite Online',
       },
-      // Workspace routes will be added in Phase 2
-      // {
-      //   path: 'workspaces',
-      //   loadChildren: () =>
-      //     import('./app/features/admin/workspace/workspace.routes').then(
-      //       (m) => m.WORKSPACE_ROUTES
-      //     ),
-      //   canActivate: [permissionGuard],
-      //   data: { permission: 'workspace:read' },
-      // },
+      {
+        path: 'workspaces',
+        loadChildren: () =>
+          import('./app/features/admin/workspace/workspace.routes').then(
+            (m) => m.WORKSPACE_ROUTES
+          ),
+        canActivate: [permissionGuard],
+        data: { permission: 'workspace:read' },
+      },
     ],
   },
 

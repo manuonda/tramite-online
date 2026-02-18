@@ -1,0 +1,128 @@
+<p-fluid>
+  <form [formGroup]="workspaceForm" (ngSubmit)="onSubmit()">
+
+    <!-- Sección: Datos Básicos -->
+    <div class="flex items-center gap-3 mb-6">
+      <h4 class="text-xl font-semibold text-gray-800 m-0">Datos Básicos</h4>
+    </div>
+
+    <!-- Grid de campos - 2 columnas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+      <!-- Workspace Name (Requerido) -->
+      <div class="flex flex-col gap-2">
+        <label for="name">Nombre del Workspace <span class="text-red-500">*</span></label>
+        <input
+          pInputText
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="Ej: Marketing Team"
+          [ngClass]="{'ng-dirty ng-invalid': nameControl?.invalid && nameControl?.touched}"
+        />
+        @if (nameControl?.invalid && nameControl?.touched) {
+          <div class="error">
+            @if (nameControl?.errors?.['required']) {
+              <p-message severity="error" variant="simple" size="small">El nombre es requerido</p-message>
+            }
+            @if (nameControl?.errors?.['minlength']) {
+              <p-message severity="error" variant="simple" size="small">El nombre debe tener al menos 3 caracteres</p-message>
+            }
+          </div>
+        }
+        @if (previewSlug && nameControl?.valid) {
+          <small class="text-xs text-gray-500">URL: /workspaces/{{ previewSlug }}</small>
+        }
+      </div>
+
+      <!-- Icon (Requerido) -->
+      <div class="flex flex-col gap-2">
+        <label for="icon">Ícono <span class="text-red-500">*</span></label>
+        <p-select
+          id="icon"
+          formControlName="icon"
+          [options]="iconOptions"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Seleccione un ícono"
+          [showClear]="false"
+          styleClass="w-full"
+          [class.ng-invalid]="workspaceForm.get('icon')?.invalid && workspaceForm.get('icon')?.touched"
+        >
+          <ng-template pTemplate="selectedItem" let-option>
+            @if (option) {
+              <div class="flex items-center gap-2">
+                <i [class]="option.icon"></i>
+                <span>{{ option.label }}</span>
+              </div>
+            }
+          </ng-template>
+          <ng-template pTemplate="item" let-option>
+            <div class="flex items-center gap-2">
+              <i [class]="option.icon"></i>
+              <span>{{ option.label }}</span>
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
+
+      <!-- Description (col-span-2) -->
+      <div class="flex flex-col gap-2 md:col-span-2">
+        <label for="description">Descripción</label>
+        <textarea
+          pTextarea
+          id="description"
+          formControlName="description"
+          placeholder="Describe el propósito del workspace (opcional)"
+          rows="3"
+          class="w-full"
+        ></textarea>
+      </div>
+
+    </div>
+
+    <!-- Sección: Apariencia -->
+    <div class="flex items-center gap-3 mb-6">
+      <h4 class="text-xl font-semibold text-gray-800 m-0">Apariencia</h4>
+    </div>
+
+    <!-- Grid de apariencia - 2 columnas -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+      <!-- Color -->
+      <div class="flex flex-col gap-2">
+        <label for="color">Color</label>
+        <div class="flex items-center gap-3">
+          <p-colorpicker
+            formControlName="color"
+            inputId="color"
+            [inline]="false"
+          ></p-colorpicker>
+          <span class="text-sm text-gray-600">Color del ícono del workspace</span>
+        </div>
+      </div>
+
+      <!-- Preview Pequeño -->
+      <div class="flex flex-col gap-2">
+        <label>Vista Previa</label>
+        <div class="flex items-center gap-3 p-4 border border-gray-200 rounded-lg bg-gray-50">
+          <div
+            class="flex items-center justify-center w-12 h-12 rounded-lg text-white shadow-md"
+            [style.background-color]="workspaceForm.get('color')?.value">
+            <i [class]="'pi ' + workspaceForm.get('icon')?.value + ' text-xl'"></i>
+          </div>
+          <div class="flex-1">
+            <h5 class="text-base font-semibold text-gray-800 m-0">
+              {{ workspaceForm.get('name')?.value || 'Nombre del Workspace' }}
+            </h5>
+            <p class="text-sm text-gray-600 m-0 mt-1">
+              {{ workspaceForm.get('description')?.value || 'Sin descripción' }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </form>
+</p-fluid>

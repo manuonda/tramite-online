@@ -1,0 +1,56 @@
+.dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem 0;
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+      font-weight: 600;
+      color: var(--text-color);
+
+      &.required::after {
+        content: ' *';
+        color: var(--red-500);
+      }
+    }
+  }
+
+  .role-option {
+    .role-option-title {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .role-option-desc {
+      font-size: 0.875rem;
+      color: var(--text-color-secondary);
+    }
+  }
+
+  .info-message {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background-color: var(--blue-50);
+    border-left: 3px solid var(--blue-500);
+    border-radius: var(--border-radius);
+    font-size: 0.875rem;
+    color: var(--blue-900);
+
+    i {
+      color: var(--blue-500);
+    }
+  }
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}

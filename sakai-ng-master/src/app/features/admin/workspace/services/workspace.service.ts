@@ -12,6 +12,8 @@ const MOCK_WORKSPACES: Workspace[] = [
         status: 'ACTIVE',
         membersCount: 5,
         formsCount: 3,
+        color: '#0ea5e9',
+        icon: 'pi pi-clipboard',
         createdAt: '2026-01-10T10:00:00Z',
         updatedAt: '2026-02-01T14:30:00Z',
         createdBy: 'admin@tramite.gob.ar'
@@ -24,6 +26,8 @@ const MOCK_WORKSPACES: Workspace[] = [
         status: 'ACTIVE',
         membersCount: 3,
         formsCount: 7,
+        color: '#10b981',
+        icon: 'pi pi-file',
         createdAt: '2026-01-15T09:00:00Z',
         updatedAt: '2026-02-10T11:00:00Z',
         createdBy: 'admin@tramite.gob.ar'
@@ -36,6 +40,8 @@ const MOCK_WORKSPACES: Workspace[] = [
         status: 'ACTIVE',
         membersCount: 8,
         formsCount: 12,
+        color: '#f59e0b',
+        icon: 'pi pi-users',
         createdAt: '2026-01-20T08:00:00Z',
         updatedAt: '2026-02-15T16:00:00Z',
         createdBy: 'admin@tramite.gob.ar'
@@ -78,6 +84,8 @@ export class WorkspaceService {
             status: 'ACTIVE',
             membersCount: 1,
             formsCount: 0,
+            color: data.color || '#0ea5e9',
+            icon: data.icon || 'pi pi-folder-open',
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
             createdBy: 'admin@tramite.gob.ar'

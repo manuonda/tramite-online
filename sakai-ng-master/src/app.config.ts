@@ -4,7 +4,8 @@ import {
     provideRouter,
     withComponentInputBinding,
     withEnabledBlockingInitialNavigation,
-    withInMemoryScrolling
+    withInMemoryScrolling,
+    withRouterConfig
 } from '@angular/router';
 import Aura from '@primeuix/themes/aura';
 import { providePrimeNG } from 'primeng/config';
@@ -19,7 +20,8 @@ export const appConfig: ApplicationConfig = {
             appRoutes,
             withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }),
             withEnabledBlockingInitialNavigation(),
-            withComponentInputBinding()
+            withComponentInputBinding(),
+            withRouterConfig({ paramsInheritanceStrategy: 'always' })
         ),
         provideHttpClient(
             withFetch(),

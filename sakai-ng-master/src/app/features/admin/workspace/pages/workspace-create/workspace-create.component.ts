@@ -160,7 +160,7 @@ export class WorkspaceCreateComponent {
         this.errorMessage.set(null);
         const { name, slug, description } = this.form.getRawValue();
 
-        this.workspaceService.create({ name, slug, description }).subscribe({
+        this.workspaceService.create({ name, slug, description, color: '#0ea5e9', icon: 'pi pi-folder-open' }).subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success', summary: 'Creado', detail: `Workspace "${name}" creado exitosamente.`

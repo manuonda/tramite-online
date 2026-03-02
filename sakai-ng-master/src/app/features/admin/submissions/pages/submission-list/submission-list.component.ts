@@ -256,6 +256,9 @@ import { SubmissionService } from '../../services/submission.service';
                                 <p-button icon="pi pi-eye" severity="info" [rounded]="true" [outlined]="true"
                                     size="small" pTooltip="Ver respuestas" tooltipPosition="top"
                                     [routerLink]="['/admin/submissions', sub.id]" />
+                                <p-button icon="pi pi-pencil" severity="secondary" [rounded]="true" [outlined]="true"
+                                    size="small" pTooltip="Editar respuestas" tooltipPosition="top"
+                                    [routerLink]="['/admin/submissions', sub.id, 'edit']" />
                                 <p-button icon="pi pi-check" severity="success" [rounded]="true" [outlined]="true"
                                     size="small" pTooltip="Marcar procesada" tooltipPosition="top"
                                     (onClick)="markProcessed(sub)"

@@ -7,8 +7,15 @@ export const SUBMISSIONS_ROUTES: Routes = [
             .then(m => m.SubmissionListComponent)
     },
     {
+        path: ':submissionId/edit',
+        loadComponent: () => import('./pages/submission-detail/submission-detail.component')
+            .then(m => m.SubmissionDetailComponent),
+        data: { edit: true }
+    },
+    {
         path: ':submissionId',
         loadComponent: () => import('./pages/submission-detail/submission-detail.component')
-            .then(m => m.SubmissionDetailComponent)
+            .then(m => m.SubmissionDetailComponent),
+        data: { edit: false }
     }
 ];

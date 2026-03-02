@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import { Observable, of, tap } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import { Submission, SubmissionFilter, SubmissionStatus } from '../models/submission.model';
+import { Submission, SubmissionAnswer, SubmissionFilter, SubmissionStatus } from '../models/submission.model';
 
 const MOCK_SUBMISSIONS: Submission[] = [
     // ── Workspace 1 · Form f1: Solicitud de Permiso de Obra ──────────────
@@ -205,6 +205,20 @@ export class SubmissionService {
         if (idx !== -1) {
             MOCK_SUBMISSIONS[idx] = { ...MOCK_SUBMISSIONS[idx], status, ...(notes !== undefined && { notes }) };
         }
+        const updated = MOCK_SUBMISSIONS[idx];
+        return of(updated).pipe(
+            delay(300),
+            tap(s => {
+                this._selected.set(s);
+                this._submissions.update(list => list.map(item => item.id === id ? s : item));
+            })
+        );
+    }
+
+    updateAnswers(id: string, answers: SubmissionAnswer[]): Observable<Submission> {
+        const idx = MOCK_SUBMISSIONS.findIndex(s => s.id === id);
+        if (idx === -1) return of(MOCK_SUBMISSIONS[idx] as Submission).pipe(delay(200));
+        MOCK_SUBMISSIONS[idx] = { ...MOCK_SUBMISSIONS[idx], answers };
         const updated = MOCK_SUBMISSIONS[idx];
         return of(updated).pipe(
             delay(300),

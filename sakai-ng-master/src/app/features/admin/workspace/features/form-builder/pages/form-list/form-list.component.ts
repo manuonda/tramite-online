@@ -191,14 +191,19 @@ type FilterTab = 'all' | 'draft' | 'published';
                             </div>
 
                             <!-- Action buttons -->
-                            <div class="mt-3 pt-3 border-t border-gray-100 dark:border-surface-700 flex items-center gap-2">
+                            <div class="mt-3 pt-3 px-2 pb-2 -mx-2 rounded-lg border-t border-gray-100 dark:border-surface-700 bg-gray-50/70 dark:bg-surface-800/70 flex items-center gap-2">
                                 <button
-                                    class="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950 rounded-lg transition-colors"
+                                    class="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
                                     (click)="goToEditor(form)">
                                     <i class="pi pi-pencil text-xs"></i> Editar
                                 </button>
                                 <button
-                                    class="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-medium text-gray-500 hover:bg-gray-50 dark:hover:bg-surface-800 rounded-lg transition-colors"
+                                    class="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg shadow-sm transition-colors"
+                                    [class.text-white]="true"
+                                    [class.bg-emerald-600]="form.status !== 'published'"
+                                    [class.hover:bg-emerald-700]="form.status !== 'published'"
+                                    [class.bg-amber-500]="form.status === 'published'"
+                                    [class.hover:bg-amber-600]="form.status === 'published'"
                                     (click)="toggleStatus(form)">
                                     @if (form.status === 'published') {
                                         <i class="pi pi-eye-slash text-xs"></i> Despublicar

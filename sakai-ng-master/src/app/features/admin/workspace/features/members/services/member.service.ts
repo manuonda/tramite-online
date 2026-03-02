@@ -1,6 +1,6 @@
 import { Injectable, signal, computed } from '@angular/core';
 import {
-    WorkspaceMember, WorkspaceRole, InviteMemberDto,
+    WorkspaceMember, WorkspaceRole, InviteMemberDto, UpdateMemberDto,
     getAvatarColor, getInitials
 } from '../models/member.model';
 
@@ -75,6 +75,21 @@ export class MemberService {
     changeRole(memberId: string, role: WorkspaceRole): void {
         this._members.update(list =>
             list.map(m => m.id === memberId ? { ...m, role } : m)
+        );
+    }
+
+    updateMember(memberId: string, dto: UpdateMemberDto): void {
+        const color = getAvatarColor(dto.name);
+        this._members.update(list =>
+            list.map(m => m.id === memberId ? {
+                ...m,
+                name: dto.name,
+                email: dto.email,
+                role: dto.role,
+                status: dto.status,
+                avatarInitials: getInitials(dto.name),
+                avatarColor: color.bg,
+            } : m)
         );
     }
 

@@ -30,6 +30,10 @@ export const appRoutes: Routes = [
             {
                 path: 'workspaces',
                 loadChildren: () => import('@features/admin/workspace/workspace.routes').then(m => m.WORKSPACE_ROUTES)
+            },
+            {
+                path: 'submissions',
+                loadChildren: () => import('@features/admin/submissions/submissions.routes').then(m => m.SUBMISSIONS_ROUTES)
             }
         ]
     },

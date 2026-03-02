@@ -10,7 +10,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { MemberService } from '../../services/member.service';
 import {
-    InviteMemberDto, WorkspaceMember, WorkspaceRole,
+    InviteMemberDto, MemberStatus, UpdateMemberDto, WorkspaceMember, WorkspaceRole,
     WORKSPACE_ROLE_CONFIG, getAvatarColor
 } from '../../models/member.model';
 
@@ -28,7 +28,7 @@ import {
         <!-- ─── Header ─────────────────────────────────────────────────── -->
         <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div class="flex items-center gap-3">
-                <div class="bg-gradient-to-br from-orange-500 to-orange-600 p-3 rounded-2xl text-white shadow-lg shadow-orange-200 dark:shadow-orange-900/40">
+                <div class="bg-linear-to-br from-orange-500 to-orange-600 p-3 rounded-2xl text-white shadow-lg shadow-orange-200 dark:shadow-orange-900/40">
                     <i class="pi pi-users text-lg"></i>
                 </div>
                 <div>
@@ -54,15 +54,15 @@ import {
 
         <!-- ─── Stats ──────────────────────────────────────────────────── -->
         <div class="grid grid-cols-3 gap-3 mb-5">
-            <div class="card p-4 text-center shadow-sm">
+            <div class="card p-4 text-center shadow-sm min-h-32 flex flex-col items-center justify-center">
                 <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ members().length }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium uppercase tracking-wide">Total</div>
             </div>
-            <div class="card p-4 text-center shadow-sm border-t-2 border-emerald-400">
+            <div class="card p-4 text-center shadow-sm border-t-2 border-emerald-400 min-h-32 flex flex-col items-center justify-center">
                 <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ activeCount() }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium uppercase tracking-wide">Activos</div>
             </div>
-            <div class="card p-4 text-center shadow-sm border-t-2 border-amber-400">
+            <div class="card p-4 text-center shadow-sm border-t-2 border-amber-400 min-h-32 flex flex-col items-center justify-center">
                 <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ pendingCount() }}</div>
                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium uppercase tracking-wide">Pendientes</div>
             </div>
@@ -71,14 +71,16 @@ import {
         <!-- ─── Search ─────────────────────────────────────────────────── -->
         <div class="mb-4">
             <div class="relative">
-                <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                <span class="absolute left-0 inset-y-0 flex items-center pl-3 pointer-events-none z-10">
+                    <i class="pi pi-search text-gray-400 text-sm"></i>
+                </span>
                 <input
                     type="text"
                     pInputText
-                    class="w-full pl-9 text-sm"
+                    class="w-full pl-10 text-sm"
                     placeholder="Buscar por nombre o email..."
                     [ngModel]="searchQuery()"
-                    (ngModelChange)="searchQuery.set($event)"
+                    (ngModelChange)="onSearchQueryChange($event)"
                 />
             </div>
         </div>
@@ -86,7 +88,7 @@ import {
         <!-- ─── Member list ────────────────────────────────────────────── -->
         @if (filteredMembers().length > 0) {
             <div class="card shadow-lg p-0 overflow-hidden">
-                @for (member of filteredMembers(); track member.id; let last = $last) {
+                @for (member of paginatedMembers(); track member.id; let last = $last) {
                     <div
                         class="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
                         [class.border-b]="!last"
@@ -95,7 +97,7 @@ import {
                     >
                         <!-- Avatar -->
                         <div
-                            class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 select-none"
+                            class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 select-none"
                             [style.background]="member.avatarColor"
                             [style.color]="getAvatarText(member.name)"
                         >
@@ -111,12 +113,12 @@ import {
                         </div>
 
                         <!-- Joined date -->
-                        <div class="hidden lg:block text-xs text-gray-400 flex-shrink-0 w-28 text-right">
+                        <div class="hidden lg:block text-xs text-gray-400 shrink-0 w-28 text-right">
                             desde {{ formatDate(member.joinedAt) }}
                         </div>
 
                         <!-- Role selector (styled as badge) -->
-                        <div class="flex-shrink-0">
+                        <div class="shrink-0">
                             <div class="relative">
                                 <select
                                     class="appearance-none pl-2.5 pr-6 py-1 text-xs font-semibold rounded-full border border-transparent cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 transition-colors"
@@ -138,22 +140,22 @@ import {
                         </div>
 
                         <!-- Status chip -->
-                        <div class="flex-shrink-0 hidden sm:block">
+                        <div class="shrink-0 hidden sm:block">
                             @if (member.status === 'active') {
                                 <span class="inline-flex items-center gap-1.5 text-xs font-medium bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-2.5 py-1 rounded-full">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
                                     Activo
                                 </span>
                             } @else {
                                 <span class="inline-flex items-center gap-1.5 text-xs font-medium bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-full">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0"></span>
+                                    <span class="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
                                     Pendiente
                                 </span>
                             }
                         </div>
 
                         <!-- Actions -->
-                        <div class="flex items-center gap-0.5 flex-shrink-0">
+                        <div class="flex items-center gap-1 shrink-0">
                             @if (member.status === 'pending') {
                                 <button
                                     class="p-1.5 rounded-lg text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition-colors"
@@ -164,7 +166,14 @@ import {
                                 </button>
                             }
                             <button
-                                class="p-1.5 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 transition-colors"
+                                class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                                title="Editar miembro"
+                                (click)="openEdit(member)"
+                            >
+                                <i class="pi pi-pencil text-sm"></i>
+                            </button>
+                            <button
+                                class="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-700 transition-colors"
                                 title="Eliminar miembro"
                                 (click)="removeMember(member)"
                             >
@@ -173,6 +182,44 @@ import {
                         </div>
                     </div>
                 }
+            </div>
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center justify-between mt-3 px-1">
+                <div class="text-xs text-gray-500 dark:text-gray-400">
+                    Mostrando {{ pageStart() }}-{{ pageEnd() }} de {{ filteredMembers().length }} miembros
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <button
+                        class="px-2.5 py-1.5 text-xs rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                        [disabled]="currentPage() === 1"
+                        (click)="goToPreviousPage()"
+                    >
+                        Anterior
+                    </button>
+                    @for (page of pages(); track page) {
+                        <button
+                            class="w-8 h-8 text-xs rounded-md border transition-colors"
+                            [class.border-orange-500]="currentPage() === page"
+                            [class.bg-orange-500]="currentPage() === page"
+                            [class.text-white]="currentPage() === page"
+                            [class.border-gray-200]="currentPage() !== page"
+                            [class.dark:border-gray-700]="currentPage() !== page"
+                            [class.text-gray-600]="currentPage() !== page"
+                            [class.dark:text-gray-300]="currentPage() !== page"
+                            [class.hover:bg-gray-50]="currentPage() !== page"
+                            [class.dark:hover:bg-gray-800]="currentPage() !== page"
+                            (click)="goToPage(page)"
+                        >
+                            {{ page }}
+                        </button>
+                    }
+                    <button
+                        class="px-2.5 py-1.5 text-xs rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                        [disabled]="currentPage() === totalPages()"
+                        (click)="goToNextPage()"
+                    >
+                        Siguiente
+                    </button>
+                </div>
             </div>
 
         } @else if (searchQuery()) {
@@ -282,7 +329,7 @@ import {
                                     </span>
                                     @if (inviteRole() === role) {
                                         <span
-                                            class="ml-auto w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0"
+                                            class="ml-auto w-4 h-4 rounded-full flex items-center justify-center shrink-0"
                                             [style.background]="roleConfig[role].color"
                                         >
                                             <i class="pi pi-check text-white" style="font-size: 8px"></i>
@@ -318,6 +365,76 @@ import {
                 </div>
             </form>
         </p-dialog>
+
+        <!-- ─── Edit Dialog ─────────────────────────────────────────────── -->
+        <p-dialog
+            [visible]="showEditDialog()"
+            (visibleChange)="showEditDialog.set($event)"
+            header="Editar miembro"
+            [modal]="true"
+            [closable]="true"
+            [draggable]="false"
+            [resizable]="false"
+            [style]="{ width: '500px', 'max-width': '95vw' }"
+        >
+            <form [formGroup]="editForm" (ngSubmit)="submitEdit()">
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                        Nombre completo <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" pInputText formControlName="name" class="w-full text-sm" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                        Correo electrónico <span class="text-red-500">*</span>
+                    </label>
+                    <input type="email" pInputText formControlName="email" class="w-full text-sm" />
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-5">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                            Rol <span class="text-red-500">*</span>
+                        </label>
+                        <select pInputText formControlName="role" class="w-full text-sm">
+                            @for (role of roles; track role) {
+                                <option [value]="role">{{ roleConfig[role].label }}</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5">
+                            Estado <span class="text-red-500">*</span>
+                        </label>
+                        <select pInputText formControlName="status" class="w-full text-sm">
+                            <option value="active">Activo</option>
+                            <option value="pending">Pendiente</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3 border-t border-gray-100 dark:border-gray-700">
+                    <p-button
+                        label="Cancelar"
+                        severity="secondary"
+                        [text]="true"
+                        size="small"
+                        (onClick)="closeEdit()"
+                    />
+                    <p-button
+                        label="Guardar cambios"
+                        icon="pi pi-check"
+                        severity="warn"
+                        size="small"
+                        type="submit"
+                        [disabled]="editForm.invalid || savingEdit()"
+                        [loading]="savingEdit()"
+                    />
+                </div>
+            </form>
+        </p-dialog>
     `
 })
 export class MemberListComponent implements OnInit {
@@ -332,8 +449,13 @@ export class MemberListComponent implements OnInit {
     readonly members         = signal<WorkspaceMember[]>([]);
     readonly searchQuery     = signal('');
     readonly showInviteDialog = signal(false);
+    readonly showEditDialog  = signal(false);
     readonly inviting        = signal(false);
+    readonly savingEdit      = signal(false);
     readonly inviteRole      = signal<WorkspaceRole>('viewer');
+    readonly editingMemberId = signal<string | null>(null);
+    readonly currentPage     = signal(1);
+    readonly pageSize        = 5;
 
     // ─── Derived ────────────────────────────────────────────────────────
     readonly filteredMembers = computed(() => {
@@ -343,6 +465,24 @@ export class MemberListComponent implements OnInit {
             m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q)
         );
     });
+    readonly totalPages = computed(() =>
+        Math.max(1, Math.ceil(this.filteredMembers().length / this.pageSize))
+    );
+    readonly paginatedMembers = computed(() => {
+        const start = (this.currentPage() - 1) * this.pageSize;
+        const end = start + this.pageSize;
+        return this.filteredMembers().slice(start, end);
+    });
+    readonly pageStart = computed(() => {
+        if (this.filteredMembers().length === 0) return 0;
+        return (this.currentPage() - 1) * this.pageSize + 1;
+    });
+    readonly pageEnd = computed(() =>
+        Math.min(this.currentPage() * this.pageSize, this.filteredMembers().length)
+    );
+    readonly pages = computed(() =>
+        Array.from({ length: this.totalPages() }, (_, i) => i + 1)
+    );
 
     readonly activeCount  = computed(() => this.members().filter(m => m.status === 'active').length);
     readonly pendingCount = computed(() => this.members().filter(m => m.status === 'pending').length);
@@ -357,6 +497,12 @@ export class MemberListComponent implements OnInit {
         email: ['', [Validators.required, Validators.email]],
         role:  ['viewer' as WorkspaceRole, Validators.required],
     });
+    readonly editForm = this.fb.nonNullable.group({
+        name:   ['', Validators.required],
+        email:  ['', [Validators.required, Validators.email]],
+        role:   ['viewer' as WorkspaceRole, Validators.required],
+        status: ['active' as MemberStatus, Validators.required],
+    });
 
     // ─── Lifecycle ───────────────────────────────────────────────────────
     ngOnInit(): void {
@@ -366,6 +512,16 @@ export class MemberListComponent implements OnInit {
     // ─── Helpers ─────────────────────────────────────────────────────────
     private refreshMembers(): void {
         this.members.set(this.memberSvc.getMembersForWorkspace(this.workspaceId));
+        this.ensureValidPage();
+    }
+
+    private ensureValidPage(): void {
+        if (this.currentPage() > this.totalPages()) {
+            this.currentPage.set(this.totalPages());
+        }
+        if (this.currentPage() < 1) {
+            this.currentPage.set(1);
+        }
     }
 
     getAvatarText(name: string): string {
@@ -376,6 +532,11 @@ export class MemberListComponent implements OnInit {
         return new Date(iso).toLocaleDateString('es-AR', {
             day: '2-digit', month: 'short', year: 'numeric'
         });
+    }
+
+    onSearchQueryChange(value: string): void {
+        this.searchQuery.set(value);
+        this.currentPage.set(1);
     }
 
     // ─── Member actions ───────────────────────────────────────────────────
@@ -395,6 +556,53 @@ export class MemberListComponent implements OnInit {
     resendInvitation(memberId: string): void {
         this.memberSvc.resendInvitation(memberId);
         this.msg.add({ severity: 'success', summary: 'Invitación reenviada', life: 2500 });
+    }
+
+    openEdit(member: WorkspaceMember): void {
+        this.editingMemberId.set(member.id);
+        this.editForm.reset({
+            name: member.name,
+            email: member.email,
+            role: member.role,
+            status: member.status,
+        });
+        this.showEditDialog.set(true);
+    }
+
+    closeEdit(): void {
+        this.showEditDialog.set(false);
+        this.editingMemberId.set(null);
+    }
+
+    submitEdit(): void {
+        const memberId = this.editingMemberId();
+        if (!memberId || this.editForm.invalid) return;
+
+        this.savingEdit.set(true);
+        const dto = this.editForm.getRawValue() as UpdateMemberDto;
+        this.memberSvc.updateMember(memberId, dto);
+        this.refreshMembers();
+        this.savingEdit.set(false);
+        this.closeEdit();
+        this.msg.add({
+            severity: 'success',
+            summary: 'Miembro actualizado',
+            detail: `${dto.name} fue actualizado correctamente`,
+            life: 3000,
+        });
+    }
+
+    goToPage(page: number): void {
+        if (page < 1 || page > this.totalPages()) return;
+        this.currentPage.set(page);
+    }
+
+    goToPreviousPage(): void {
+        this.goToPage(this.currentPage() - 1);
+    }
+
+    goToNextPage(): void {
+        this.goToPage(this.currentPage() + 1);
     }
 
     // ─── Invite dialog ────────────────────────────────────────────────────

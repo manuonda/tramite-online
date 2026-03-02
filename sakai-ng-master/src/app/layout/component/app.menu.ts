@@ -48,17 +48,12 @@ export class AppMenu {
                 ]
             },
             {
-                label: 'Formularios',
+                label: 'Respuestas',
                 items: [
                     {
-                        label: 'Solicitudes',
+                        label: 'Todas las Respuestas',
                         icon: 'pi pi-fw pi-inbox',
-                        routerLink: ['/admin/formularios/solicitudes']
-                    },
-                    {
-                        label: 'Habilitaciones',
-                        icon: 'pi pi-fw pi-check-circle',
-                        routerLink: ['/admin/formularios/habilitaciones']
+                        routerLink: ['/admin/submissions']
                     }
                 ]
             },

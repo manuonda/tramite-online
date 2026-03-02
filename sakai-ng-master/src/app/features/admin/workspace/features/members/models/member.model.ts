@@ -74,6 +74,13 @@ export interface InviteMemberDto {
     role: WorkspaceRole;
 }
 
+export interface UpdateMemberDto {
+    email: string;
+    name: string;
+    role: WorkspaceRole;
+    status: MemberStatus;
+}
+
 // Avatar color palette for initials
 export const AVATAR_COLORS = [
     { bg: '#dbeafe', text: '#1d4ed8' },

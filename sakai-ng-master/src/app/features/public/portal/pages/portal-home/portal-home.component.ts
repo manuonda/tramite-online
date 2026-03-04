@@ -16,31 +16,33 @@ import { Form } from '@features/admin/workspace/features/form-builder/models/for
         .anim-entry { animation: fadeUp 0.4s ease both; }
         .form-card { transition: transform 0.18s ease, box-shadow 0.18s ease; }
         .form-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px -4px rgba(0,0,0,0.12); }
+        .workspace-block {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 1rem;
+            padding: 1rem;
+        }
     `],
     template: `
         <!-- ── Hero ──────────────────────────────────────────────────────── -->
-        <div class="bg-white border-b border-gray-100">
-            <div class="max-w-5xl mx-auto px-6 py-10 flex flex-col sm:flex-row items-center gap-6">
-                <div class="flex-1">
-                    <p class="text-xs font-semibold tracking-widest text-blue-500 uppercase mb-2">Portal de Trámites</p>
-                    <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight mb-3">
-                        Realizá tus trámites<br class="hidden sm:block" /> sin filas ni esperas
+        <div class="bg-gray-50 border-b border-gray-200">
+            <div class="max-w-6xl mx-auto px-6 py-10">
+                <div class="text-center mb-6">
+                    <h1 class="text-4xl sm:text-5xl font-bold text-[#333333] tracking-tight mb-2">
+                        TramiteOnline
                     </h1>
-                    <p class="text-gray-500 text-base leading-relaxed max-w-md">
-                        Accedé a todos los servicios municipales de forma digital, simple y segura.
+                    <p class="text-lg font-semibold text-[#333333] mb-1">
+                        Portal de Tramites Digitales
                     </p>
-                </div>
-                <div class="shrink-0">
-                    <div class="w-24 h-24 bg-gradient-to-br from-blue-500 to-blue-700 rounded-3xl flex items-center justify-center shadow-xl">
-                        <i class="pi pi-building text-white" style="font-size:2.75rem"></i>
-                    </div>
+                    <p class="text-sm text-gray-500">
+                        Realiza tus tramites de forma virtual, simple y segura.
+                    </p>
                 </div>
             </div>
         </div>
 
         <!-- ── Catálogo ───────────────────────────────────────────────────── -->
-        <div class="max-w-5xl mx-auto px-6 py-10">
-
+        <div id="tramites-disponibles" class="max-w-5xl mx-auto px-6 py-10">
             @if (isLoading()) {
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     @for (i of skeletons; track i) {
@@ -63,85 +65,50 @@ import { Form } from '@features/admin/workspace/features/form-builder/models/for
 
             } @else {
                 @for (entry of catalog(); track entry.workspace.id; let idx = $index) {
-                    <section class="mb-10 anim-entry" [style.animation-delay]="(idx * 80) + 'ms'">
+                    <section class="workspace-block mb-6 anim-entry" [style.animation-delay]="(idx * 80) + 'ms'">
 
                         <!-- Workspace header -->
-                        <div class="flex items-center gap-3 mb-5">
-                            <div class="flex w-9 h-9 items-center justify-center rounded-xl shrink-0"
-                                [style.background-color]="entry.workspace.color + '22'"
-                                [style.color]="entry.workspace.color">
-                                <i [class]="entry.workspace.icon + ' text-base'"></i>
-                            </div>
-                            <div>
+                        <div class="flex items-start gap-3 mb-4 pb-3 border-b border-gray-100">
+                            <div class="w-1.5 h-10 rounded-full shrink-0 mt-0.5"
+                                [style.background-color]="entry.workspace.color"></div>
+                            <div class="pt-0.5">
                                 <h2 class="text-base font-bold text-gray-800 leading-tight">{{ entry.workspace.name }}</h2>
                                 @if (entry.workspace.description) {
                                     <p class="text-xs text-gray-400 mt-0.5">{{ entry.workspace.description }}</p>
                                 }
                             </div>
-                            <div class="ml-auto h-px flex-1 bg-gray-100 hidden sm:block"></div>
-                            <span class="text-xs text-gray-400 shrink-0">
+                            <div class="ml-auto"></div>
+                            <span class="inline-flex items-center text-xs font-medium text-gray-600 bg-gray-100 px-2.5 py-1 rounded-full shrink-0">
                                 {{ entry.publishedForms.length }}
                                 {{ entry.publishedForms.length === 1 ? 'trámite' : 'trámites' }}
                             </span>
                         </div>
 
-                        <!-- Single form → centered -->
-                        @if (entry.publishedForms.length === 1) {
-                            <div class="flex justify-center">
-                                <div class="w-full max-w-xs">
-                                    <button type="button"
-                                        class="form-card w-full bg-white rounded-2xl border border-gray-100 overflow-hidden text-left cursor-pointer shadow-sm"
-                                        (click)="openForm(entry.publishedForms[0])">
-                                        <div class="h-1.5" [style.background-color]="entry.workspace.color"></div>
-                                        <div class="p-6 flex flex-col items-center text-center gap-3">
-                                            <div class="w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm"
-                                                [style.background-color]="entry.workspace.color + '18'"
-                                                [style.color]="entry.workspace.color">
-                                                <i [class]="entry.workspace.icon + ' text-2xl'"></i>
-                                            </div>
-                                            <h3 class="text-sm font-bold text-gray-800 leading-snug">{{ entry.publishedForms[0].name }}</h3>
-                                            @if (entry.publishedForms[0].description) {
-                                                <p class="text-xs text-gray-400 leading-relaxed line-clamp-2">{{ entry.publishedForms[0].description }}</p>
-                                            }
-                                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold mt-1 px-4 py-2 rounded-full"
-                                                [style.background-color]="entry.workspace.color + '15'"
-                                                [style.color]="entry.workspace.color">
-                                                <i class="pi pi-arrow-right text-xs"></i>
-                                                Iniciar trámite
-                                            </span>
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-                        } @else {
-                            <!-- Multiple forms → grid -->
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                                @for (form of entry.publishedForms; track form.id) {
-                                    <button type="button"
-                                        class="form-card w-full bg-white rounded-2xl border border-gray-100 overflow-hidden text-left cursor-pointer shadow-sm"
-                                        (click)="openForm(form)">
-                                        <div class="h-1.5" [style.background-color]="entry.workspace.color"></div>
-                                        <div class="p-6 flex flex-col items-center text-center gap-3">
-                                            <div class="w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm"
-                                                [style.background-color]="entry.workspace.color + '18'"
-                                                [style.color]="entry.workspace.color">
-                                                <i [class]="entry.workspace.icon + ' text-2xl'"></i>
-                                            </div>
-                                            <h3 class="text-sm font-bold text-gray-800 leading-snug">{{ form.name }}</h3>
-                                            @if (form.description) {
-                                                <p class="text-xs text-gray-400 leading-relaxed line-clamp-2">{{ form.description }}</p>
-                                            }
-                                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold mt-1 px-4 py-2 rounded-full"
-                                                [style.background-color]="entry.workspace.color + '15'"
-                                                [style.color]="entry.workspace.color">
-                                                <i class="pi pi-arrow-right text-xs"></i>
-                                                Iniciar trámite
-                                            </span>
-                                        </div>
-                                    </button>
-                                }
-                            </div>
-                        }
+                        <!-- Cards de trámites -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            @for (form of entry.publishedForms; track form.id) {
+                                <button type="button"
+                                    class="form-card w-full h-full bg-white rounded-2xl border border-gray-100 overflow-hidden text-left cursor-pointer shadow-sm"
+                                    (click)="openForm(form)">
+                                    <div class="h-1.5" [style.background-color]="entry.workspace.color"></div>
+                                    <div class="p-5 flex flex-col items-start text-left gap-2 h-full min-h-[250px]">
+                                        <h3 class="text-sm font-bold text-gray-800 leading-snug">{{ form.name }}</h3>
+                                        @if (form.description) {
+                                            <p class="text-xs text-gray-400 leading-relaxed line-clamp-3 flex-1">{{ form.description }}</p>
+                                        } @else {
+                                            <div class="flex-1"></div>
+                                        }
+                                        <span class="inline-flex w-full items-center justify-center gap-2 text-sm font-semibold mt-1 px-3 py-2.5 rounded-xl border"
+                                            [style.color]="entry.workspace.color"
+                                            [style.border-color]="entry.workspace.color + '55'"
+                                            [style.background-color]="entry.workspace.color + '10'">
+                                            <i class="pi pi-play text-xs"></i>
+                                            Iniciar trámite
+                                        </span>
+                                    </div>
+                                </button>
+                            }
+                        </div>
                     </section>
                 }
             }
@@ -156,6 +123,9 @@ export class PortalHomeComponent implements OnInit {
     private readonly _loading = signal(true);
     readonly isLoading = this._loading.asReadonly();
     readonly catalog = computed<WorkspaceCatalogEntry[]>(() => this.publicFormSvc.getPublicCatalog());
+    readonly totalPublishedForms = computed(() =>
+        this.catalog().reduce((acc, entry) => acc + entry.publishedForms.length, 0)
+    );
     readonly skeletons = [1, 2, 3, 4, 5, 6];
 
     ngOnInit(): void {

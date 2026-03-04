@@ -167,6 +167,16 @@ export class SubmissionService {
         this._submissions().filter(s => s.status === 'pending').length
     );
 
+    create(data: Omit<Submission, 'id'>): Observable<Submission> {
+        const id = `sub-${String(MOCK_SUBMISSIONS.length + 1).padStart(3, '0')}`;
+        const submission: Submission = { id, ...data };
+        MOCK_SUBMISSIONS.push(submission);
+        return of(submission).pipe(
+            delay(700),
+            tap(s => this._submissions.update(list => [...list, s]))
+        );
+    }
+
     getAll(filter?: Partial<SubmissionFilter>): Observable<Submission[]> {
         this._loading.set(true);
         let result = [...MOCK_SUBMISSIONS];

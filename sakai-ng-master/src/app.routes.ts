@@ -9,11 +9,13 @@ export const appRoutes: Routes = [
             { path: '', redirectTo: 'home', pathMatch: 'full' },
             {
                 path: 'home',
-                loadComponent: () => import('@features/public/home/home.component').then(m => m.HomeComponent)
+                loadComponent: () => import('@features/public/portal/pages/portal-home/portal-home.component')
+                    .then(m => m.PortalHomeComponent)
             },
             {
                 path: 'forms',
-                loadComponent: () => import('@features/public/home/home.component').then(m => m.HomeComponent)
+                loadChildren: () => import('@features/public/portal/public-form.routes')
+                    .then(m => m.PUBLIC_FORM_ROUTES)
             }
         ]
     },

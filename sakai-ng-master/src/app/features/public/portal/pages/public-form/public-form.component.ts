@@ -67,7 +67,7 @@ import { StepperVerticalComponent } from './components/stepper-vertical/stepper-
                                     [style.color]="workspace()!.color">
                                     {{ workspace()!.name }}
                                 </p>
-                                <h1 class="text-sm font-semibold text-gray-900 leading-snug mt-0 mb-0.5">{{ form()!.name }}</h1>
+                                <h1 class="text-[10px] font-semibold text-gray-900 leading-none m-0">{{ form()!.name }}</h1>
                             </div>
                         </div>
 

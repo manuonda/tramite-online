@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { Section } from '@features/admin/workspace/features/form-builder/models/form-builder.models';
 import { AnswerChangeEvent, AnswerMap } from '../../../../models/portal.model';
 import { QuestionRendererComponent } from '../question-renderer/question-renderer.component';
@@ -6,7 +7,7 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
 @Component({
     selector: 'app-stepper-horizontal',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [QuestionRendererComponent],
+    imports: [QuestionRendererComponent, RouterModule],
     styles: [`
         :host { display: block; }
         .step-line { flex: 1; height: 2px; }
@@ -15,11 +16,46 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
             padding: 10px 24px; border-radius: 10px; font-size: 0.9375rem;
             font-weight: 600; cursor: pointer; transition: all 0.15s; border: none;
         }
-        .nav-prev { background: white; border: 1.5px solid #e5e7eb; color: #374151; }
-        .nav-prev:hover { border-color: #9ca3af; background: #f9fafb; }
+        .nav-prev { color: white; }
+        .nav-prev:hover { filter: brightness(0.9); }
         .nav-next { color: white; }
         .nav-next:hover { filter: brightness(0.9); }
         .nav-next:disabled { opacity: 0.6; cursor: not-allowed; }
+        .nav-cancel {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border-radius: 10px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #ffffff;
+            background: #6b7280;
+            border: 1px solid #6b7280;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.15s, background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
+            line-height: 1;
+        }
+        .nav-cancel .cancel-icon-wrap {
+            width: 20px;
+            height: 20px;
+            border-radius: 9999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #4b5563;
+            color: #e5e7eb;
+            border: 1px solid #6b7280;
+            flex-shrink: 0;
+        }
+        .nav-cancel:hover {
+            color: #ffffff;
+            background: #4b5563;
+            border-color: #4b5563;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.14);
+        }
+        .nav-cancel:focus-visible { outline: 2px solid #9ca3af; outline-offset: 2px; }
     `],
     template: `
         <!-- ── Step indicators ──────────────────────────────────────────────── -->
@@ -78,13 +114,28 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
 
         <!-- ── Navigation ────────────────────────────────────────────────────── -->
         <div class="flex items-center justify-between mt-10 pt-6 border-t border-gray-100">
-            <button type="button" class="nav-btn nav-prev"
-                [style.visibility]="isFirst() ? 'hidden' : 'visible'"
-                (click)="prev.emit()">
-                <i class="pi pi-chevron-left text-sm"></i>
-                Anterior
-            </button>
 
+            <!-- Izquierda: Cancelar siempre + Anterior cuando no es el primer step -->
+            <div class="flex items-center gap-2">
+                <a routerLink="/home" class="nav-cancel">
+                    <span class="cancel-icon-wrap">
+                        <i class="pi pi-times text-[10px]"></i>
+                    </span>
+                    Cancelar
+                </a>
+
+                @if (!isFirst()) {
+                    <button type="button" class="nav-btn nav-prev"
+                        [style.background-color]="accentColor()"
+                        [style.border-color]="accentColor()"
+                        (click)="prev.emit()">
+                        <i class="pi pi-chevron-left text-sm"></i>
+                        Anterior
+                    </button>
+                }
+            </div>
+
+            <!-- Derecha: Siguiente / Enviar -->
             @if (isLast()) {
                 <button type="button" class="nav-btn nav-next"
                     [style.background-color]="accentColor()"

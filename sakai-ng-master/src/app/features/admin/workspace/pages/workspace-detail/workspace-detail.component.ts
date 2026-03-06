@@ -265,8 +265,7 @@ export class WorkspaceDetailComponent implements OnInit {
     readonly tabs: TabItem[] = [
         { label: 'Formularios',        icon: 'pi pi-file',     route: 'forms'         },
         { label: 'Valores de Dominio', icon: 'pi pi-database', route: 'domain-values' },
-        { label: 'Miembros',           icon: 'pi pi-users',    route: 'members'       },
-        { label: 'Respuestas',         icon: 'pi pi-inbox',    route: 'submissions'   }
+        { label: 'Miembros',           icon: 'pi pi-users',    route: 'members'       }
     ];
 
     ngOnInit(): void {

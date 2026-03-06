@@ -54,33 +54,25 @@ import { StepperVerticalComponent } from './components/stepper-vertical/stepper-
 
                 <!-- ── Form header ─────────────────────────────────────────────── -->
                 <div class="border-b border-gray-100 bg-white">
-                    <div class="max-w-4xl mx-auto px-6 py-5">
-                        <div class="flex items-start gap-4">
+                    <div class="max-w-4xl mx-auto px-6 py-3.5">
+                        <div class="flex items-start gap-3">
                             <!-- Workspace icon -->
-                            <div class="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                            <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
                                 [style.background-color]="workspace()!.color + '20'"
                                 [style.color]="workspace()!.color">
-                                <i [class]="workspace()!.icon + ' text-lg'"></i>
+                                <i [class]="workspace()!.icon + ' text-base'"></i>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-xs font-semibold uppercase tracking-wider mb-0.5"
+                                <p class="text-[11px] font-semibold uppercase tracking-wider m-0 leading-none"
                                     [style.color]="workspace()!.color">
                                     {{ workspace()!.name }}
                                 </p>
-                                <h1 class="text-xl font-bold text-gray-900 leading-tight">{{ form()!.name }}</h1>
-                                @if (form()!.description) {
-                                    <p class="text-sm text-gray-500 mt-0.5">{{ form()!.description }}</p>
-                                }
+                                <h1 class="text-sm font-semibold text-gray-900 leading-snug mt-0 mb-0.5">{{ form()!.name }}</h1>
                             </div>
-                            <a routerLink="/home"
-                                class="shrink-0 flex items-center gap-1.5 text-xs text-gray-400 hover:text-gray-600 font-medium no-underline transition-colors">
-                                <i class="pi pi-times text-xs"></i>
-                                <span class="hidden sm:inline">Cancelar</span>
-                            </a>
                         </div>
 
                         <!-- Accent line -->
-                        <div class="mt-4 h-1 rounded-full"
+                        <div class="mt-3 h-1 rounded-full"
                             [style.background-color]="workspace()!.color + '30'">
                             <div class="h-1 rounded-full transition-all duration-500"
                                 [style.background-color]="workspace()!.color"

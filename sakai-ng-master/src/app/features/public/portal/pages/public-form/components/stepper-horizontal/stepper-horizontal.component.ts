@@ -24,35 +24,22 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
         .nav-cancel {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
             padding: 9px 14px;
             border-radius: 10px;
             font-size: 0.875rem;
             font-weight: 600;
             color: #ffffff;
-            background: #6b7280;
-            border: 1px solid #6b7280;
+            background: #4b5563;
+            border: 1px solid #4b5563;
             cursor: pointer;
             text-decoration: none;
             transition: color 0.15s, background-color 0.15s, border-color 0.15s, box-shadow 0.15s;
             line-height: 1;
         }
-        .nav-cancel .cancel-icon-wrap {
-            width: 20px;
-            height: 20px;
-            border-radius: 9999px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #4b5563;
-            color: #e5e7eb;
-            border: 1px solid #6b7280;
-            flex-shrink: 0;
-        }
         .nav-cancel:hover {
             color: #ffffff;
-            background: #4b5563;
-            border-color: #4b5563;
+            background: #374151;
+            border-color: #374151;
             box-shadow: 0 1px 6px rgba(0,0,0,0.14);
         }
         .nav-cancel:focus-visible { outline: 2px solid #9ca3af; outline-offset: 2px; }
@@ -118,9 +105,6 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
             <!-- Izquierda: Cancelar siempre + Anterior cuando no es el primer step -->
             <div class="flex items-center gap-2">
                 <a routerLink="/home" class="nav-cancel">
-                    <span class="cancel-icon-wrap">
-                        <i class="pi pi-times text-[10px]"></i>
-                    </span>
                     Cancelar
                 </a>
 

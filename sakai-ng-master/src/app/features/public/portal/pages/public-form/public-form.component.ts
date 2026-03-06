@@ -63,11 +63,10 @@ import { StepperVerticalComponent } from './components/stepper-vertical/stepper-
                                 <i [class]="workspace()!.icon + ' text-base'"></i>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-[11px] font-semibold uppercase tracking-wider m-0 leading-none"
-                                    [style.color]="workspace()!.color">
-                                    {{ workspace()!.name }}
+                                <p class="text-[10px] font-semibold uppercase tracking-wider m-0 leading-none text-gray-500">
+                                    Espacio de trabajo
                                 </p>
-                                <h1 class="text-[10px] font-semibold text-gray-900 leading-none m-0">{{ form()!.name }}</h1>
+                                <h1 class="text-lg font-semibold text-gray-900 leading-snug mt-1 mb-0">{{ form()!.name }}</h1>
                             </div>
                         </div>
 

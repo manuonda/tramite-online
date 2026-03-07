@@ -12,7 +12,6 @@ import { Form } from '@features/admin/workspace/features/form-builder/models/for
         :host {
             display: block;
             background-color: #F5F5F5;
-            min-height: 100vh;
             font-family: 'Inter', system-ui, sans-serif;
         }
 
@@ -57,90 +56,110 @@ import { Form } from '@features/admin/workspace/features/form-builder/models/for
 
         /* ── Catálogo ── */
         .catalog {
-            max-width: 1100px;
+            max-width: 1140px;
             margin: 0 auto;
-            padding: 2rem 1.5rem 3rem;
+            padding: 2.5rem 1.5rem 3.5rem;
         }
 
         /* ── Workspace block ── */
         .ws-block {
-            margin-bottom: 2rem;
+            margin-bottom: 2.5rem;
         }
         .ws-header {
             display: flex;
             align-items: center;
-            gap: 0.625rem;
-            margin-bottom: 1rem;
-            padding-bottom: 0.625rem;
-            border-bottom: 1px solid #e0e0e0;
+            gap: 1rem;
+            margin-bottom: 1.25rem;
+            padding: 1rem 1.25rem;
+            background: #ffffff;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        .ws-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
+        .ws-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
             flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
+        .ws-info { flex: 1; min-width: 0; }
         .ws-name {
-            font-size: 0.9375rem;
+            font-size: 1rem;
             font-weight: 700;
-            color: #1a3a6b;
-            letter-spacing: 0.01em;
-            text-transform: uppercase;
+            color: #1e293b;
+            letter-spacing: -0.01em;
         }
         .ws-desc {
-            font-size: 0.8rem;
-            color: #9e9e9e;
-            margin-left: 0.25rem;
+            font-size: 0.8125rem;
+            color: #64748b;
+            margin-top: 0.125rem;
         }
         .ws-badge {
-            margin-left: auto;
-            font-size: 0.75rem;
+            font-size: 0.8125rem;
             font-weight: 600;
-            color: #616161;
-            background: #eeeeee;
+            color: #475569;
+            background: #f1f5f9;
             border-radius: 999px;
-            padding: 0.15rem 0.6rem;
+            padding: 0.35rem 0.85rem;
             white-space: nowrap;
             flex-shrink: 0;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
         }
 
         /* ── Card ── */
         .form-card {
             background: #ffffff;
-            border-radius: 10px;
-            border: 1px solid #e8e8e8;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transition: box-shadow 0.2s ease, border-color 0.2s ease;
-            min-height: 220px;
+            transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+            min-height: 240px;
         }
         .form-card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
-            border-color: #bdbdbd;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
         }
         .card-accent {
-            height: 4px;
+            height: 5px;
             width: 100%;
         }
         .card-body {
-            padding: 1.25rem 1.25rem 1rem;
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
             flex: 1;
-            gap: 0.5rem;
+            gap: 0.75rem;
+        }
+        .card-icon-wrap {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
         .card-title {
-            font-size: 1rem;
+            font-size: 1.0625rem;
             font-weight: 700;
-            color: #212121;
-            line-height: 1.35;
+            color: #1e293b;
+            line-height: 1.4;
             margin: 0;
         }
         .card-desc {
-            font-size: 0.8125rem;
-            color: #757575;
+            font-size: 0.875rem;
+            color: #64748b;
             line-height: 1.55;
             flex: 1;
             display: -webkit-box;
@@ -150,38 +169,39 @@ import { Form } from '@features/admin/workspace/features/form-builder/models/for
         }
         .card-spacer { flex: 1; }
 
-        /* ── Botón institucional ── */
+        /* ── Botón ── */
         .btn-tramite {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 0.4rem;
+            gap: 0.5rem;
             width: 100%;
-            padding: 0.7rem 1.25rem;
-            border-radius: 6px;
-            font-size: 0.875rem;
+            padding: 0.75rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.9375rem;
             font-weight: 600;
             color: #ffffff;
             border: none;
             cursor: pointer;
-            letter-spacing: 0.02em;
-            transition: filter 0.18s ease, box-shadow 0.18s ease;
-            margin-top: 0.75rem;
+            letter-spacing: 0.01em;
+            transition: filter 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+            margin-top: auto;
         }
         .btn-tramite:hover {
-            filter: brightness(0.85);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            filter: brightness(1.05);
+            box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+            transform: translateY(-1px);
         }
         .btn-tramite:focus-visible {
             outline: 2px solid currentColor;
             outline-offset: 2px;
         }
         .btn-tramite .btn-icon {
-            font-size: 0.7rem;
-            transition: transform 0.18s ease;
+            font-size: 0.8rem;
+            transition: transform 0.2s ease;
         }
         .btn-tramite:hover .btn-icon {
-            transform: translateX(3px);
+            transform: translateX(4px);
         }
 
         /* ── Empty state ── */
@@ -194,21 +214,21 @@ import { Form } from '@features/admin/workspace/features/form-builder/models/for
             text-align: center;
         }
         .empty-icon {
-            width: 60px;
-            height: 60px;
-            background: #eeeeee;
-            border-radius: 50%;
+            width: 72px;
+            height: 72px;
+            background: #f1f5f9;
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-bottom: 1rem;
+            margin-bottom: 1.25rem;
         }
 
         /* ── Skeleton ── */
         .skeleton-card {
             background: #ffffff;
-            border-radius: 10px;
-            border: 1px solid #e8e8e8;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
             overflow: hidden;
             animation: pulse 1.4s ease-in-out infinite;
         }
@@ -264,30 +284,43 @@ import { Form } from '@features/admin/workspace/features/form-builder/models/for
 
                         <!-- Encabezado del organismo -->
                         <div class="ws-header">
-                            <span class="ws-dot" [style.background-color]="entry.workspace.color"></span>
-                            <span class="ws-name">{{ entry.workspace.name }}</span>
-                            @if (entry.workspace.description) {
-                                <span class="ws-desc">— {{ entry.workspace.description }}</span>
-                            }
+                            <div class="ws-icon" [style.background]="'linear-gradient(135deg, ' + (entry.workspace.color || '#1e3a5f') + ' 0%, ' + (entry.workspace.color || '#1e3a5f') + 'cc 100%)'">
+                                <i [class]="(entry.workspace.icon || 'pi pi-building') + ' text-lg'"></i>
+                            </div>
+                            <div class="ws-info">
+                                <div class="ws-name">{{ entry.workspace.name }}</div>
+                                @if (entry.workspace.description) {
+                                    <div class="ws-desc">{{ entry.workspace.description }}</div>
+                                }
+                            </div>
                             <span class="ws-badge">
+                                <i class="pi pi-file-edit text-sm"></i>
                                 {{ entry.publishedForms.length }} {{ entry.publishedForms.length === 1 ? 'trámite' : 'trámites' }}
                             </span>
                         </div>
 
                         <!-- Grid de cards -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                             @for (form of entry.publishedForms; track form.id) {
                                 <article class="form-card">
-                                    <div class="card-accent" [style.background-color]="entry.workspace.color"></div>
+                                    <div class="card-accent" [style.background]="'linear-gradient(90deg, ' + (entry.workspace.color || '#1e3a5f') + ', ' + (entry.workspace.color || '#1e3a5f') + 'cc)'"></div>
                                     <div class="card-body">
-                                        <h2 class="card-title">{{ form.name }}</h2>
-                                        @if (form.description) {
-                                            <p class="card-desc">{{ form.description }}</p>
-                                        } @else {
-                                            <div class="card-spacer"></div>
-                                        }
+                                        <div class="flex items-start gap-3">
+                                            <div class="card-icon-wrap" [style.background-color]="(entry.workspace.color || '#1e3a5f') + '20'" [style.color]="entry.workspace.color || '#1e3a5f'">
+                                                <i class="pi pi-file-edit text-lg"></i>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <h2 class="card-title">{{ form.name }}</h2>
+                                                @if (form.description) {
+                                                    <p class="card-desc">{{ form.description }}</p>
+                                                } @else {
+                                                    <div class="card-spacer"></div>
+                                                }
+                                            </div>
+                                        </div>
                                         <button type="button" class="btn-tramite"
-                                            [style.background-color]="entry.workspace.color"
+                                            [style.background]="'linear-gradient(135deg, ' + (entry.workspace.color || '#1e3a5f') + ' 0%, ' + (entry.workspace.color || '#1e3a5f') + 'cc 100%)'"
+                                            [style.box-shadow]="'0 4px 12px ' + (entry.workspace.color || '#1e3a5f') + '40'"
                                             (click)="openForm(form)">
                                             <i class="pi pi-arrow-right btn-icon"></i>
                                             Iniciar trámite

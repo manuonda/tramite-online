@@ -25,24 +25,24 @@ interface QuickAccessCard {
     changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [RouterModule],
     template: `
-        <!-- Header de bienvenida -->
+        <!-- Header de bienvenida (Apollo-style) -->
         <div class="mb-8">
-            <div class="bg-white dark:bg-surface-900 rounded-xl shadow-lg border-l-4 border-blue-500 overflow-hidden">
+            <div class="dashboard-welcome-card">
                 <div class="p-6">
                     <div class="flex items-center gap-5">
-                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-4 rounded-full text-white shadow-lg shrink-0">
+                        <div class="dashboard-welcome-icon">
                             <i class="pi pi-home text-2xl"></i>
                         </div>
                         <div class="flex-1">
-                            <h1 class="text-2xl font-bold text-gray-800 dark:text-white mb-1">
+                            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white mb-1 tracking-tight">
                                 Bienvenido, {{ userName() }}
                             </h1>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">
                                 Panel de administración — Trámite Online
                             </p>
                         </div>
-                        <div class="hidden md:flex bg-blue-50 dark:bg-blue-950 px-3 py-1 rounded-full">
-                            <span class="text-blue-800 dark:text-blue-200 text-sm font-semibold">
+                        <div class="hidden md:flex dashboard-welcome-badge">
+                            <span class="text-sm font-semibold">
                                 <i class="pi pi-cog mr-1"></i>
                                 Panel de Control
                             </span>
@@ -52,46 +52,44 @@ interface QuickAccessCard {
             </div>
         </div>
 
-        <!-- Tarjetas de estadísticas -->
+        <!-- Tarjetas de estadísticas (Apollo-style) -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             @for (stat of stats; track stat.label) {
-                <div class="bg-white dark:bg-surface-900 rounded-xl shadow-md border border-gray-100 dark:border-surface-700 p-6 hover:shadow-lg transition-all duration-300">
+                <div class="dashboard-stat-card">
                     <div class="flex items-center justify-between mb-4">
-                        <div class="p-3 rounded-full {{ stat.bgColor }}">
+                        <div class="p-3 rounded-xl {{ stat.bgColor }}">
                             <i class="{{ stat.icon }} text-lg {{ stat.color }}"></i>
                         </div>
-                        <span class="text-3xl font-bold text-gray-800 dark:text-white">{{ stat.value }}</span>
+                        <span class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{{ stat.value }}</span>
                     </div>
                     <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">{{ stat.label }}</p>
                 </div>
             }
         </div>
 
-        <!-- Accesos rápidos -->
+        <!-- Accesos rápidos (Apollo-style) -->
         <div class="mb-6">
             <div class="flex items-center gap-3 mb-5">
-                <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-2 rounded-full text-white shadow">
+                <div class="dashboard-section-icon">
                     <i class="pi pi-th-large text-sm"></i>
                 </div>
-                <h2 class="text-lg font-bold text-gray-800 dark:text-white">Accesos rápidos</h2>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">Accesos rápidos</h2>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 @for (card of quickAccess; track card.titulo) {
                     <div
                         [routerLink]="card.activo ? card.route : null"
-                        class="bg-white dark:bg-surface-900 rounded-xl shadow-md border-l-4 {{ card.color }} hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col"
-                        [class.opacity-60]="!card.activo"
-                        [class.cursor-not-allowed]="!card.activo"
-                        [class.hover:-translate-y-1]="card.activo"
+                        class="dashboard-quick-card"
+                        [class.dashboard-quick-card--disabled]="!card.activo"
                     >
                         <div class="p-6 flex flex-col h-full">
                             <div class="flex items-start gap-4 mb-4">
-                                <div class="p-3 rounded-full text-white shadow-md shrink-0 {{ card.color.replace('border-', 'bg-') }}">
+                                <div class="dashboard-quick-icon {{ card.color.replace('border-', 'bg-') }}">
                                     <i class="{{ card.icono }} text-lg"></i>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <h3 class="text-base font-bold text-gray-800 dark:text-white mb-1">
+                                    <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-1">
                                         {{ card.titulo }}
                                     </h3>
                                 </div>
@@ -101,7 +99,7 @@ interface QuickAccessCard {
                             </p>
                             <div class="flex justify-between items-center mt-auto">
                                 @if (card.activo) {
-                                    <span class="text-green-600 text-xs font-semibold flex items-center gap-1">
+                                    <span class="text-green-600 dark:text-green-400 text-xs font-semibold flex items-center gap-1">
                                         <i class="pi pi-check-circle text-xs"></i>
                                         Disponible
                                     </span>

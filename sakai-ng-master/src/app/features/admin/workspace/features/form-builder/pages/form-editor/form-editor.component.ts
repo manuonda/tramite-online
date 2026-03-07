@@ -110,10 +110,32 @@ interface TypeColors { icon: string; bg: string; }
         }
         .inline-input {
             background: transparent; border: none; outline: none;
-            padding: 0; font-family: inherit; width: 100%;
+            padding: 0.25rem 0.5rem; margin: -0.25rem -0.5rem;
+            font-family: inherit; width: 100%; border-radius: 6px;
+            transition: background 0.15s, box-shadow 0.15s;
         }
-        .inline-input:hover, .inline-input:focus {
-            background: rgba(59,130,246,0.06); border-radius: 4px; padding: 0 4px;
+        .inline-input:hover {
+            background: rgba(59,130,246,0.06);
+        }
+        .inline-input:focus {
+            background: rgba(59,130,246,0.08);
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+        }
+        .inline-input::placeholder { color: #9ca3af; }
+        :host-context(.dark) .inline-input:hover { background: rgba(59,130,246,0.1); }
+        :host-context(.dark) .inline-input:focus { background: rgba(59,130,246,0.12); }
+        .form-stats-badge {
+            display: inline-flex; align-items: center; gap: 0.375rem;
+            padding: 0.25rem 0.625rem; border-radius: 9999px;
+            font-size: 0.75rem; font-weight: 500;
+            background: #f1f5f9; color: #475569;
+        }
+        :host-context(.dark) .form-stats-badge { background: var(--surface-800); color: #94a3b8; }
+        .back-to-list-btn {
+            display: inline-flex;
+        }
+        .editando-badge {
+            box-shadow: 0 1px 3px rgba(37,99,235,0.2);
         }
         .type-option-item {
             display: flex; align-items: flex-start; gap: 0.625rem;
@@ -128,28 +150,33 @@ interface TypeColors { icon: string; bg: string; }
             box-shadow: 0 8px 24px rgba(0,0,0,0.12);
             min-width: 220px; max-height: 300px; overflow-y: auto; padding: 4px 0;
         }
+        .add-question-dropdown {
+            min-width: 260px;
+            max-height: 320px;
+        }
         :host-context(.dark) .type-dropdown-menu {
             background: var(--surface-900); border-color: var(--surface-700);
         }
         .action-btn {
-            width: 28px; height: 28px;
+            width: 32px; height: 32px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 6px; transition: all 0.12s; border: none;
-            background: transparent; cursor: pointer; color: #9ca3af;
+            border-radius: 8px; transition: all 0.15s; border: none;
+            background: transparent; cursor: pointer; color: #6b7280;
         }
-        .action-btn:hover { background: #f3f4f6; color: #4b5563; }
-        .action-btn:disabled { opacity: 0.25; cursor: not-allowed; }
-        .action-btn.settings-active { background: #eff6ff; color: #3b82f6; }
-        /* Trash: always red */
-        .action-btn.danger { color: #f87171; }
-        .action-btn.danger:hover { background: #fef2f2; color: #dc2626; }
-        /* Separator before trash */
+        .action-btn:hover:not(:disabled) { background: #f3f4f6; color: #374151; }
+        .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        .action-btn.settings-active { background: #eff6ff; color: #2563eb; }
+        .action-btn.danger { color: #dc2626; }
+        .action-btn.danger:hover:not(:disabled) { background: #fef2f2; color: #b91c1c; }
+        .action-btn-group { display: flex; align-items: center; gap: 2px; }
         .action-btn-sep {
-            width: 1px; height: 16px; background: #e5e7eb;
-            margin: 0 2px; flex-shrink: 0;
+            width: 1px; height: 18px; background: #e5e7eb;
+            margin: 0 4px; flex-shrink: 0; border-radius: 1px;
         }
-        :host-context(.dark) .action-btn:hover { background: var(--surface-700); color: #e2e8f0; }
+        :host-context(.dark) .action-btn:hover:not(:disabled) { background: var(--surface-700); color: #e5e7eb; }
+        :host-context(.dark) .action-btn.settings-active { background: rgba(59,130,246,0.2); color: #60a5fa; }
         :host-context(.dark) .action-btn.danger { color: #f87171; }
+        :host-context(.dark) .action-btn.danger:hover:not(:disabled) { background: rgba(220,38,38,0.15); color: #fca5a5; }
         :host-context(.dark) .action-btn-sep { background: var(--surface-600); }
         .config-panel-input {
             width: 100%; height: 36px; padding: 0 10px;
@@ -172,42 +199,48 @@ interface TypeColors { icon: string; bg: string; }
             </div>
         } @else {
 
-        <!-- ── Back link ───────────────────────────────────────────── -->
-        <div class="flex items-center gap-2 mb-5">
-            <a class="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors no-underline cursor-pointer"
-                [routerLink]="['/admin/workspaces', workspaceId()]">
-                <i class="pi pi-arrow-left text-xs"></i>
-                {{ workspaceName() }}
-            </a>
-        </div>
+        <!-- ── Volver al listado ──────────────────────────────────── -->
+        <a [routerLink]="['/admin/workspaces', workspaceId(), 'forms']"
+            class="back-to-list-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-surface-600 bg-white dark:bg-surface-900 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-surface-800 hover:border-gray-300 dark:hover:border-surface-500 transition-all no-underline text-sm font-medium shadow-sm mb-6">
+            <i class="pi pi-arrow-left text-sm"></i>
+            Volver al listado
+        </a>
 
         <!-- ── Form Header Card ───────────────────────────────────── -->
-        <div class="bg-white dark:bg-surface-900 rounded-xl border border-gray-200 dark:border-surface-700 p-5 mb-5 shadow-sm">
+        <div class="form-header-card bg-white dark:bg-surface-900 rounded-xl border border-gray-200 dark:border-surface-700 p-6 mb-6 shadow-sm">
             <div class="flex items-start justify-between gap-4 flex-wrap">
                 <div class="flex-1 min-w-0">
+                    <!-- Editando + nombre editable -->
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="editando-badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-600 text-white">
+                            <i class="pi pi-pencil" style="font-size:0.65rem;"></i>
+                            Editando
+                        </span>
+                    </div>
                     <input
-                        class="inline-input text-xl font-bold text-gray-900 dark:text-white mb-0.5"
+                        class="inline-input text-xl font-bold text-gray-900 dark:text-white block w-full"
                         [value]="form()!.name"
                         (blur)="updateFormName($any($event.target).value)"
                         (keydown.enter)="$any($event.target).blur()"
                         placeholder="Nombre del formulario" />
                     <input
-                        class="inline-input text-sm text-gray-500 dark:text-gray-400 block mt-1"
+                        class="inline-input text-sm text-gray-500 dark:text-gray-400 block mt-1 w-full"
                         [value]="form()!.description || ''"
                         (blur)="updateFormDesc($any($event.target).value)"
                         (keydown.enter)="$any($event.target).blur()"
                         placeholder="Descripción opcional..." />
-                    <div class="flex items-center gap-4 mt-2.5 text-xs text-gray-400">
-                        <span class="flex items-center gap-1">
-                            <i class="pi pi-list"></i>
+                    <!-- Stats con iconos mejorados -->
+                    <div class="flex items-center gap-2 mt-3 flex-wrap">
+                        <span class="form-stats-badge">
+                            <i class="pi pi-folder text-blue-500"></i>
                             {{ sortedSections().length }} {{ sortedSections().length === 1 ? 'sección' : 'secciones' }}
                         </span>
-                        <span class="flex items-center gap-1">
-                            <i class="pi pi-question-circle"></i>
+                        <span class="form-stats-badge">
+                            <i class="pi pi-question-circle text-emerald-500"></i>
                             {{ totalQuestions() }} preguntas
                         </span>
-                        <span class="flex items-center gap-1">
-                            <i class="pi pi-clock"></i>
+                        <span class="form-stats-badge">
+                            <i class="pi pi-calendar text-amber-500"></i>
                             Actualizado {{ formatDate(form()!.updatedAt) }}
                         </span>
                     </div>
@@ -242,7 +275,7 @@ interface TypeColors { icon: string; bg: string; }
         <!-- ── Sections ───────────────────────────────────────────── -->
         <div class="space-y-3">
             @for (section of sortedSections(); track section.id; let sIdx = $index) {
-                <div class="section-card overflow-hidden">
+                <div class="section-card overflow-visible">
 
                     <!-- Section header — title + desc always visible -->
                     <div class="flex items-start gap-2 px-4 py-3">
@@ -271,24 +304,29 @@ interface TypeColors { icon: string; bg: string; }
                         </div>
 
                         <!-- Question count + actions -->
-                        <div class="flex items-center gap-0.5 shrink-0 mt-0.5">
-                            <span class="type-badge mr-1.5">
+                        <div class="flex items-center gap-2 shrink-0 mt-0.5">
+                            <span class="type-badge mr-1">
                                 {{ section.questions.length }}
                                 {{ section.questions.length === 1 ? 'pregunta' : 'preguntas' }}
                             </span>
-                            <button class="action-btn" [disabled]="sIdx === 0"
-                                (click)="moveSection(section.id, 'up')" title="Subir sección">
-                                <i class="pi pi-angle-up" style="font-size:0.8rem;"></i>
-                            </button>
-                            <button class="action-btn" [disabled]="sIdx === sortedSections().length - 1"
-                                (click)="moveSection(section.id, 'down')" title="Bajar sección">
-                                <i class="pi pi-angle-down" style="font-size:0.8rem;"></i>
-                            </button>
-                            <span class="action-btn-sep"></span>
-                            <button class="action-btn danger"
-                                (click)="deleteSection(section.id)" title="Eliminar sección">
-                                <i class="pi pi-trash" style="font-size:0.75rem;"></i>
-                            </button>
+                            <div class="action-btn-group">
+                                <button class="action-btn" [disabled]="sIdx === 0"
+                                    (click)="moveSection(section.id, 'up')"
+                                    pTooltip="Subir sección" tooltipPosition="top">
+                                    <i class="pi pi-angle-up text-xs"></i>
+                                </button>
+                                <button class="action-btn" [disabled]="sIdx === sortedSections().length - 1"
+                                    (click)="moveSection(section.id, 'down')"
+                                    pTooltip="Bajar sección" tooltipPosition="top">
+                                    <i class="pi pi-angle-down text-xs"></i>
+                                </button>
+                                <span class="action-btn-sep"></span>
+                                <button class="action-btn danger"
+                                    (click)="deleteSection(section.id)"
+                                    pTooltip="Eliminar sección" tooltipPosition="top">
+                                    <i class="pi pi-trash text-xs"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -326,27 +364,30 @@ interface TypeColors { icon: string; bg: string; }
                                             <span class="required-badge shrink-0">Requerido</span>
                                         }
 
-                                        <!-- Action buttons — always visible -->
-                                        <div class="flex items-center gap-0.5 shrink-0">
+                                        <!-- Action buttons -->
+                                        <div class="action-btn-group shrink-0">
                                             <button class="action-btn" [disabled]="qIdx === 0"
-                                                (click)="moveQuestion(section.id, question.id, 'up')" title="Mover arriba">
-                                                <i class="pi pi-angle-up" style="font-size:0.8rem;"></i>
+                                                (click)="moveQuestion(section.id, question.id, 'up')"
+                                                pTooltip="Mover arriba" tooltipPosition="top">
+                                                <i class="pi pi-angle-up text-xs"></i>
                                             </button>
                                             <button class="action-btn" [disabled]="qIdx === section.questions.length - 1"
-                                                (click)="moveQuestion(section.id, question.id, 'down')" title="Mover abajo">
-                                                <i class="pi pi-angle-down" style="font-size:0.8rem;"></i>
+                                                (click)="moveQuestion(section.id, question.id, 'down')"
+                                                pTooltip="Mover abajo" tooltipPosition="top">
+                                                <i class="pi pi-angle-down text-xs"></i>
                                             </button>
-                                            <!-- Settings toggle — triggers config panel -->
-                                            <button class="action-btn" title="Configurar pregunta"
+                                            <span class="action-btn-sep"></span>
+                                            <button class="action-btn"
                                                 [class.settings-active]="questionOpen(question.id)"
-                                                (click)="toggleQuestion(question.id)">
-                                                <i class="pi pi-sliders-h" style="font-size:0.75rem;"></i>
+                                                (click)="toggleQuestion(question.id)"
+                                                pTooltip="Configurar pregunta" tooltipPosition="top">
+                                                <i class="pi pi-cog text-xs"></i>
                                             </button>
-                                            <!-- Separator before destructive action -->
                                             <span class="action-btn-sep"></span>
                                             <button class="action-btn danger"
-                                                (click)="deleteQuestion(section.id, question.id)" title="Eliminar pregunta">
-                                                <i class="pi pi-trash" style="font-size:0.75rem;"></i>
+                                                (click)="deleteQuestion(section.id, question.id)"
+                                                pTooltip="Eliminar pregunta" tooltipPosition="top">
+                                                <i class="pi pi-trash text-xs"></i>
                                             </button>
                                         </div>
                                     </div>
@@ -546,7 +587,7 @@ interface TypeColors { icon: string; bg: string; }
                                     Agregar pregunta
                                 </button>
                                 @if (addQuestionFor() === section.id) {
-                                    <div class="type-dropdown-menu left-0 bottom-full mb-1">
+                                    <div class="type-dropdown-menu add-question-dropdown left-0 bottom-full mb-2">
                                         @for (entry of questionTypes; track entry.type) {
                                             <div class="type-option-item"
                                                 (click)="addQuestion(section.id, entry.type)">
@@ -600,7 +641,6 @@ export class FormEditorComponent implements OnInit {
     readonly openQuestions = signal<Set<string>>(new Set());
     readonly typeDropdownFor = signal<string | null>(null);
     readonly addQuestionFor = signal<string | null>(null);
-    readonly workspaceName = signal<string>('Workspace');
 
     readonly sortedSections = computed(() =>
         [...(this.form()?.sections ?? [])].sort((a, b) => a.order - b.order)

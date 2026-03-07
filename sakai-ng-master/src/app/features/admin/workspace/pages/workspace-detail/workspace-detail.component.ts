@@ -1,13 +1,16 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal, effect } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { Router, RouterModule } from '@angular/router';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { BreadcrumbService } from '@core/services/breadcrumb.service';
 import { Workspace, WorkspaceStatus, WORKSPACE_COLORS, WORKSPACE_ICONS } from '../../models/workspace.model';
 import { WorkspaceService } from '../../services/workspace.service';
 import { FormBuilderService } from '../../features/form-builder/services/form-builder.service';
@@ -17,12 +20,68 @@ interface TabItem { label: string; icon: string; route: string; }
 @Component({
     selector: 'app-workspace-detail',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [MessageService],
+    providers: [MessageService, ConfirmationService],
     imports: [
         RouterModule, FormsModule, ReactiveFormsModule,
-        DialogModule, ButtonModule, InputTextModule, TextareaModule, ToastModule, SelectModule
+        DialogModule, ButtonModule, InputTextModule, TextareaModule, ToastModule, SelectModule,
+        ConfirmDialogModule, TooltipModule
     ],
     styles: [`
+        .workspace-header-card {
+            background: var(--surface-card);
+            border-radius: 16px;
+            border: 1px solid var(--surface-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        .workspace-icon {
+            width: 56px; height: 56px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, var(--ws-color) 0%, var(--ws-color) 100%);
+            color: white;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        .ws-badge {
+            display: inline-flex; align-items: center; gap: 0.375rem;
+            padding: 0.35rem 0.75rem; border-radius: 9999px;
+            font-size: 0.8125rem; font-weight: 500;
+        }
+        .ws-badge-forms {
+            background: #eff6ff; color: #1d4ed8;
+        }
+        :host-context(.dark) .ws-badge-forms { background: rgba(59,130,246,0.2); color: #93c5fd; }
+        .ws-badge-members {
+            background: #f5f3ff; color: #5b21b6;
+        }
+        :host-context(.dark) .ws-badge-members { background: rgba(139,92,246,0.2); color: #c4b5fd; }
+        .ws-action-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.5rem 1rem; border-radius: 10px;
+            font-size: 0.875rem; font-weight: 600;
+            transition: all 0.15s; border: 1px solid;
+        }
+        .ws-action-edit {
+            background: white; color: #4b5563; border-color: #e5e7eb;
+        }
+        .ws-action-edit:hover { background: #f9fafb; border-color: #d1d5db; color: #1f2937; }
+        :host-context(.dark) .ws-action-edit { background: var(--surface-800); color: #e5e7eb; border-color: var(--surface-600); }
+        :host-context(.dark) .ws-action-edit:hover { background: var(--surface-700); }
+        .ws-action-disable {
+            background: #fffbeb; color: #b45309; border-color: #fcd34d;
+        }
+        .ws-action-disable:hover { background: #fef3c7; color: #92400e; }
+        :host-context(.dark) .ws-action-disable { background: rgba(245,158,11,0.15); color: #fbbf24; border-color: rgba(245,158,11,0.4); }
+        .ws-action-enable {
+            background: #ecfdf5; color: #047857; border-color: #6ee7b7;
+        }
+        .ws-action-enable:hover { background: #d1fae5; color: #065f46; }
+        :host-context(.dark) .ws-action-enable { background: rgba(16,185,129,0.15); color: #34d399; border-color: rgba(16,185,129,0.4); }
+        .ws-action-delete {
+            background: #fef2f2; color: #b91c1c; border-color: #fca5a5;
+        }
+        .ws-action-delete:hover { background: #fee2e2; color: #991b1b; }
+        :host-context(.dark) .ws-action-delete { background: rgba(220,38,38,0.15); color: #f87171; border-color: rgba(220,38,38,0.4); }
         :host ::ng-deep a.active-tab {
             color: #3b82f6;
             border-bottom-color: #3b82f6;
@@ -47,59 +106,72 @@ interface TabItem { label: string; icon: string; route: string; }
         .icon-swatch.active { border-color: #3b82f6; background: #eff6ff; color: #3b82f6; }
     `],
     template: `
-        <!-- Back link -->
-        <div class="flex items-center gap-2 mb-5">
-            <a routerLink="/admin/workspaces"
-                class="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors no-underline">
-                <i class="pi pi-arrow-left text-xs"></i>
-                Workspaces
-            </a>
-        </div>
-
         @if (workspace(); as ws) {
-            <!-- Workspace header -->
-            <div class="bg-white dark:bg-surface-900 rounded-xl border border-gray-200 dark:border-surface-700 overflow-hidden mb-5 shadow-sm">
-                <!-- Colored top bar -->
-                <div class="h-1.5" [style.background-color]="ws.color || '#3b82f6'"></div>
-                <div class="p-5">
-                    <div class="flex items-start justify-between gap-4 flex-wrap">
-                        <div class="flex items-start gap-4">
-                            <!-- Icon -->
-                            <div class="flex w-12 h-12 items-center justify-center rounded-xl shrink-0"
-                                [style.background-color]="(ws.color || '#3b82f6') + '20'"
-                                [style.color]="ws.color || '#3b82f6'">
-                                <i [class]="(ws.icon || 'pi pi-th-large') + ' text-xl'"></i>
-                            </div>
-                            <div>
-                                <h1 class="text-xl font-bold text-gray-900 dark:text-white mb-0.5">{{ ws.name }}</h1>
-                                @if (ws.description) {
-                                    <p class="text-sm text-gray-500 dark:text-gray-400">{{ ws.description }}</p>
-                                }
-                                <div class="flex items-center gap-3 mt-2 flex-wrap">
-                                    <span class="inline-flex items-center gap-1 text-xs text-gray-400">
-                                        <i class="pi pi-file text-xs"></i>
-                                        {{ getFormCount(ws) }} formularios
-                                    </span>
-                                    <span class="inline-flex items-center gap-1 text-xs text-gray-400">
-                                        <i class="pi pi-users text-xs"></i>
-                                        {{ ws.membersCount }} miembros
-                                    </span>
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
-                                        [class]="getStatusClass(ws.status)">
-                                        {{ getStatusLabel(ws.status) }}
-                                    </span>
+            <!-- Header card mejorado -->
+            <div class="mb-8">
+                <div class="workspace-header-card">
+                    <div class="p-6">
+                        <div class="flex items-center gap-6 flex-wrap">
+                            <div class="flex items-center gap-6 flex-1 min-w-0">
+                                <!-- Icono principal -->
+                                <div class="workspace-icon"
+                                    [style.--ws-color]="ws.color || '#3b82f6'">
+                                    <i [class]="(ws.icon || 'pi pi-th-large') + ' text-2xl'"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">{{ ws.name }}</h1>
+                                    @if (ws.description) {
+                                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ ws.description }}</p>
+                                    }
+                                    <div class="flex items-center gap-2 mt-3 flex-wrap">
+                                        <span class="ws-badge ws-badge-forms">
+                                            <i class="pi pi-file-edit"></i>
+                                            {{ getFormCount(ws) }} formularios
+                                        </span>
+                                        <span class="ws-badge ws-badge-members">
+                                            <i class="pi pi-users"></i>
+                                            {{ ws.membersCount }} miembros
+                                        </span>
+                                        <span class="ws-badge"
+                                            [class]="getStatusClass(ws.status)">
+                                            {{ getStatusLabel(ws.status) }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
+                            <!-- Acciones -->
+                            <div class="flex items-center gap-2 shrink-0 relative z-10">
+                                <button type="button" class="ws-action-btn ws-action-edit"
+                                    (click)="openEdit(ws)"
+                                    pTooltip="Editar nombre, descripción y configuración" tooltipPosition="top">
+                                    <i class="pi pi-pencil"></i>
+                                    Editar
+                                </button>
+                                <button type="button"
+                                    [class]="ws.status === 'ACTIVE' ? 'ws-action-btn ws-action-disable' : 'ws-action-btn ws-action-enable'"
+                                    (click)="ws.status === 'ACTIVE' ? confirmDisable(ws) : toggleStatus(ws)"
+                                    [pTooltip]="ws.status === 'ACTIVE' ? 'Deshabilitar espacio' : 'Activar espacio'"
+                                    tooltipPosition="top">
+                                    <i [class]="ws.status === 'ACTIVE' ? 'pi pi-pause' : 'pi pi-play'"></i>
+                                    {{ ws.status === 'ACTIVE' ? 'Deshabilitar' : 'Activar' }}
+                                </button>
+                                <button type="button" class="ws-action-btn ws-action-delete"
+                                    (click)="confirmDelete(ws)"
+                                    pTooltip="Eliminar workspace" tooltipPosition="top">
+                                    <i class="pi pi-trash"></i>
+                                    Eliminar
+                                </button>
+                            </div>
                         </div>
-                        <!-- Edit button -->
-                        <button
-                            class="flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-surface-600 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors shrink-0"
-                            (click)="openEdit(ws)">
-                            <i class="pi pi-pencil text-xs"></i>
-                            Editar workspace
-                        </button>
                     </div>
                 </div>
+                <!-- Volver al listado -->
+                <a [routerLink]="['/admin/workspaces']"
+                    class="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg border border-gray-200 dark:border-surface-600 bg-white dark:bg-surface-900 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-surface-800 hover:border-gray-300 dark:hover:border-surface-500 transition-all no-underline text-sm font-medium shadow-sm"
+                    title="Volver al listado de espacios">
+                    <i class="pi pi-arrow-left"></i>
+                    Volver al listado
+                </a>
             </div>
         } @else if (isLoading()) {
             <div class="bg-white dark:bg-surface-900 rounded-xl border border-gray-200 dark:border-surface-700 p-5 mb-5 animate-pulse">
@@ -230,6 +302,7 @@ interface TabItem { label: string; icon: string; route: string; }
         </p-dialog>
 
         <p-toast />
+        <p-confirmDialog />
     `
 })
 export class WorkspaceDetailComponent implements OnInit {
@@ -239,6 +312,9 @@ export class WorkspaceDetailComponent implements OnInit {
     private readonly fbService = inject(FormBuilderService);
     private readonly fb = inject(FormBuilder);
     private readonly messageService = inject(MessageService);
+    private readonly breadcrumbSvc = inject(BreadcrumbService);
+    private readonly confirmationService = inject(ConfirmationService);
+    private readonly router = inject(Router);
 
     readonly workspace = this.workspaceService.selected;
     readonly isLoading = this.workspaceService.loading;
@@ -267,6 +343,16 @@ export class WorkspaceDetailComponent implements OnInit {
         { label: 'Valores de Dominio', icon: 'pi pi-database', route: 'domain-values' },
         { label: 'Miembros',           icon: 'pi pi-users',    route: 'members'       }
     ];
+
+    constructor() {
+        effect(() => {
+            const ws = this.workspace();
+            const id = this.workspaceId();
+            if (ws && id) {
+                this.breadcrumbSvc.setCustomLabel(ws.name, ['/admin/workspaces', id]);
+            }
+        });
+    }
 
     ngOnInit(): void {
         const id = this.workspaceId();
@@ -309,6 +395,56 @@ export class WorkspaceDetailComponent implements OnInit {
     resetEditDialog(): void {
         this.editDialogVisible = false;
         this.editForm.reset();
+    }
+
+    toggleStatus(ws: Workspace): void {
+        const newStatus: WorkspaceStatus = ws.status === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
+        this.workspaceService.update(ws.id, { status: newStatus }).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Estado actualizado',
+                    detail: newStatus === 'ACTIVE' ? 'Espacio activado.' : 'Espacio deshabilitado.'
+                });
+            },
+            error: () => {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo cambiar el estado.' });
+            }
+        });
+    }
+
+    confirmDisable(ws: Workspace): void {
+        this.confirmationService.confirm({
+            message: `Al deshabilitar el Espacio de Trabajo "${ws.name}", este y sus formularios no se mostrarán a los usuarios finales. Los datos existentes se conservan y podés reactivarlo en cualquier momento. ¿Desea continuar?`,
+            header: 'Deshabilitar Espacio de Trabajo',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass: 'p-button-warning',
+            acceptLabel: 'Deshabilitar',
+            rejectLabel: 'Cancelar',
+            accept: () => this.toggleStatus(ws)
+        });
+    }
+
+    confirmDelete(ws: Workspace): void {
+        this.confirmationService.confirm({
+            message: `¿Está seguro de eliminar el workspace "${ws.name}"? Esta acción no se puede deshacer.`,
+            header: 'Confirmar eliminación',
+            icon: 'pi pi-exclamation-triangle',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => this.deleteWorkspace(ws.id)
+        });
+    }
+
+    deleteWorkspace(id: string): void {
+        this.workspaceService.delete(id).subscribe({
+            next: () => {
+                this.messageService.add({ severity: 'success', summary: 'Eliminado', detail: 'Workspace eliminado.' });
+                this.router.navigate(['/admin/workspaces']);
+            },
+            error: () => {
+                this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo eliminar.' });
+            }
+        });
     }
 
     getFormCount(ws: Workspace): number {

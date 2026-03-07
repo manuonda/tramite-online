@@ -1,5 +1,20 @@
 @use 'mixins' as *;
 
+/* Apollo-style layout variables */
+:root {
+    --layout-topbar-bg: #1e3a5f;
+    --layout-topbar-text: rgba(255, 255, 255, 0.9);
+    --layout-topbar-text-hover: #ffffff;
+    --layout-topbar-hover-bg: rgba(255, 255, 255, 0.08);
+}
+
+:root[class*='app-dark'] {
+    --layout-topbar-bg: #0f1f33;
+    --layout-topbar-text: rgba(255, 255, 255, 0.9);
+    --layout-topbar-text-hover: #ffffff;
+    --layout-topbar-hover-bg: rgba(255, 255, 255, 0.1);
+}
+
 .layout-topbar {
     position: fixed;
     height: 4rem;
@@ -8,7 +23,8 @@
     top: 0;
     width: 100%;
     padding: 0 2rem;
-    background-color: var(--surface-card);
+    background-color: var(--layout-topbar-bg);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
     transition: left var(--layout-section-transition-duration);
     display: flex;
     align-items: center;
@@ -22,14 +38,21 @@
     .layout-topbar-logo {
         display: inline-flex;
         align-items: center;
-        font-size: 1.5rem;
+        font-size: 1.25rem;
+        font-weight: 600;
         border-radius: var(--content-border-radius);
-        color: var(--text-color);
-        font-weight: 500;
+        color: var(--layout-topbar-text);
         gap: 0.5rem;
+        letter-spacing: -0.02em;
 
         svg {
-            width: 3rem;
+            width: 2.5rem;
+
+            path,
+            g path,
+            mask path {
+                fill: currentColor !important;
+            }
         }
 
         &:focus-visible {
@@ -44,12 +67,13 @@
         border-radius: 50%;
         width: 2.5rem;
         height: 2.5rem;
-        color: var(--text-color);
-        transition: background-color var(--element-transition-duration);
+        color: var(--layout-topbar-text);
+        transition: background-color var(--element-transition-duration), color var(--element-transition-duration);
         cursor: pointer;
 
         &:hover {
-            background-color: var(--surface-hover);
+            background-color: var(--layout-topbar-hover-bg);
+            color: var(--layout-topbar-text-hover);
         }
 
         &:focus-visible {
@@ -61,13 +85,14 @@
         }
 
         span {
-            font-size: 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
             display: none;
         }
 
         &.layout-topbar-action-highlight {
-            background-color: var(--primary-color);
-            color: var(--primary-contrast-color);
+            background-color: rgba(255, 255, 255, 0.2);
+            color: var(--layout-topbar-text-hover);
         }
     }
 

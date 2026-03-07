@@ -1,8 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
-import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -25,7 +24,7 @@ import { SubmissionService } from '../../services/submission.service';
     providers: [MessageService, ConfirmationService],
     imports: [
         RouterModule, FormsModule,
-        BreadcrumbModule, ButtonModule, TableModule, TagModule,
+        ButtonModule, TableModule, TagModule,
         PanelModule, InputTextModule, IconFieldModule, InputIconModule,
         ToastModule, ConfirmDialogModule, TooltipModule,
     ],
@@ -36,44 +35,8 @@ import { SubmissionService } from '../../services/submission.service';
         ::ng-deep .p-datatable .p-datatable-thead > tr > th {
             padding: 0.875rem 1.25rem;
         }
-        ::ng-deep .breadcrumb-custom .p-breadcrumb {
-            background: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-        }
-        ::ng-deep .breadcrumb-custom .p-breadcrumb-item-link {
-            color: #6b7280 !important;
-            font-weight: 500;
-            padding: 0.5rem 0.75rem;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-        }
-        ::ng-deep .breadcrumb-custom .p-breadcrumb-item-link:hover {
-            color: #374151 !important;
-            background-color: rgba(139, 92, 246, 0.1);
-        }
-        ::ng-deep .breadcrumb-custom .p-breadcrumb-item-icon {
-            color: #8b5cf6 !important;
-        }
-        ::ng-deep .breadcrumb-custom .p-breadcrumb-item:last-child .p-breadcrumb-item-link {
-            color: #8b5cf6 !important;
-            font-weight: 600;
-            background-color: rgba(139, 92, 246, 0.1);
-            cursor: default;
-        }
     `],
     template: `
-        <!-- Breadcrumb -->
-        <div class="mb-6">
-            <div class="bg-gray-50 dark:bg-surface-800 rounded-lg p-3 border border-gray-200 dark:border-surface-700 shadow-sm">
-                <p-breadcrumb
-                    class="breadcrumb-custom"
-                    [model]="breadcrumbItems"
-                    [home]="home"
-                    [style]="{'background':'transparent','border':'none','padding':'0'}" />
-            </div>
-        </div>
-
         <!-- Header -->
         <div class="mb-8">
             <div class="flex items-center gap-4">
@@ -320,12 +283,6 @@ export class SubmissionListComponent implements OnInit {
         { status: 'reviewed'  as SubmissionStatus, label: 'Revisadas'   },
         { status: 'processed' as SubmissionStatus, label: 'Procesadas'  },
         { status: 'rejected'  as SubmissionStatus, label: 'Rechazadas'  },
-    ];
-
-    readonly home: MenuItem = { icon: 'pi pi-home', routerLink: '/admin/dashboard' };
-    readonly breadcrumbItems: MenuItem[] = [
-        { label: 'Admin', routerLink: '/admin/dashboard' },
-        { label: 'Respuestas' }
     ];
 
     ngOnInit(): void {

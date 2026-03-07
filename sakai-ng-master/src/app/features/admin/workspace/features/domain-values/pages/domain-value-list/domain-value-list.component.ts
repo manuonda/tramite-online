@@ -23,25 +23,24 @@ import { FormBuilderService } from '../../../../features/form-builder/services/f
     styles: [`
         .domain-item {
             cursor: pointer;
-            border-radius: 0.625rem;
-            border: 1.5px solid #e5e7eb;
-            padding: 0.75rem;
-            background: white;
-            transition: all 0.15s;
-            display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--surface-border);
+            padding: 1rem 1.25rem;
+            background: var(--surface-card);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
         }
-        :host-context(.dark) .domain-item {
-            background: var(--surface-900);
-            border-color: var(--surface-700);
+        .domain-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         }
-        .domain-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.07); }
         .domain-item.selected {
             border-color: #3b82f6;
-            background: #eff6ff;
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
-        }
-        :host-context(.dark) .domain-item.selected {
-            background: rgba(59,130,246,0.1);
+            background: linear-gradient(135deg, rgba(59,130,246,0.08) 0%, rgba(59,130,246,0.04) 100%);
+            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
         }
         .value-table th {
             padding: 0.625rem 1rem;
@@ -91,51 +90,67 @@ import { FormBuilderService } from '../../../../features/form-builder/services/f
         :host-context(.dark) code.val { background: var(--surface-800); color: #94a3b8; }
     `],
     template: `
-        <!-- Page Header -->
-        <div class="flex items-start justify-between mb-6">
-            <div>
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Valores de Dominio</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Gestiona los conjuntos de valores reutilizables para tus formularios
-                </p>
+        <!-- Header (Apollo-style) -->
+        <div class="mb-8">
+            <div class="dashboard-welcome-card">
+                <div class="p-6">
+                    <div class="flex items-center justify-between gap-4 flex-wrap">
+                        <div class="flex items-center gap-5">
+                            <div class="dashboard-welcome-icon">
+                                <i class="pi pi-database text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-900 dark:text-white tracking-tight mb-0.5">Valores de Dominio</h2>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Gestiona los conjuntos de valores reutilizables para tus formularios
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
+                            (click)="openCreate()">
+                            <i class="pi pi-plus text-xs"></i>
+                            Nuevo Dominio
+                        </button>
+                    </div>
+                </div>
             </div>
-            <button
-                class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                (click)="openCreate()">
-                <i class="pi pi-plus text-xs"></i>
-                Nuevo Dominio
-            </button>
         </div>
 
         <!-- Master-Detail Layout -->
-        <div class="grid gap-5 lg:grid-cols-[300px_1fr]">
-
+        <div class="grid gap-6 lg:grid-cols-[320px_1fr]">
             <!-- ── Left: Domain List ──────────────────────────────── -->
             <div class="space-y-2">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="dashboard-section-icon">
+                        <i class="pi pi-list text-sm"></i>
+                    </div>
+                    <h3 class="text-base font-semibold text-gray-900 dark:text-white">Dominios</h3>
+                </div>
                 @for (domain of domains(); track domain.id) {
                     <div class="domain-item"
                         [class.selected]="selectedDomainId() === domain.id"
                         (click)="selectDomain(domain.id)">
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="flex w-9 h-9 items-center justify-center rounded-lg shrink-0"
+                            <div class="flex w-10 h-10 items-center justify-center rounded-xl shrink-0 transition-colors"
                                 [class]="selectedDomainId() === domain.id
-                                    ? 'bg-blue-100 text-blue-600'
-                                    : 'bg-gray-100 dark:bg-surface-800 text-gray-400'">
-                                <i class="pi pi-database text-sm"></i>
+                                    ? 'bg-blue-500 text-white shadow-md'
+                                    : 'bg-gray-100 dark:bg-surface-800 text-gray-500 dark:text-gray-400'">
+                                <i class="pi pi-database text-base"></i>
                             </div>
-                            <div class="min-w-0">
+                            <div class="min-w-0 flex-1">
                                 <p class="text-sm font-semibold text-gray-800 dark:text-white truncate">{{ domain.name }}</p>
-                                <p class="text-xs text-gray-400">{{ domain.values.length }} valores</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400">{{ domain.values.length }} valores</p>
                             </div>
                         </div>
                         <div class="flex items-center gap-0.5 shrink-0"
                             (click)="$event.stopPropagation()">
-                            <button class="w-7 h-7 flex items-center justify-center rounded-md text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 hover:text-blue-600 transition-colors"
+                            <button class="w-8 h-8 flex items-center justify-center rounded-lg text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 transition-colors"
                                 pTooltip="Editar" tooltipPosition="top"
                                 (click)="openEdit(domain)">
                                 <i class="pi pi-pencil text-xs"></i>
                             </button>
-                            <button class="w-7 h-7 flex items-center justify-center rounded-md text-red-400 hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 transition-colors"
+                            <button class="w-8 h-8 flex items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
                                 pTooltip="Eliminar" tooltipPosition="top"
                                 (click)="confirmDelete(domain)">
                                 <i class="pi pi-trash text-xs"></i>
@@ -144,32 +159,44 @@ import { FormBuilderService } from '../../../../features/form-builder/services/f
                     </div>
                 }
                 @if (domains().length === 0) {
-                    <div class="rounded-xl border-2 border-dashed border-gray-200 dark:border-surface-700 py-10 text-center">
-                        <i class="pi pi-database text-gray-300 text-2xl mb-2 block"></i>
-                        <p class="text-sm text-gray-400">No hay dominios creados</p>
+                    <div class="dashboard-stat-card py-12 text-center">
+                        <i class="pi pi-database text-gray-300 dark:text-gray-600 text-3xl mb-3 block"></i>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No hay dominios creados</p>
+                        <button
+                            class="mt-3 text-sm font-medium text-blue-600 hover:text-blue-700"
+                            (click)="openCreate()">
+                            Crear primer dominio
+                        </button>
                     </div>
                 }
             </div>
 
             <!-- ── Right: Domain Values ───────────────────────────── -->
-            <div class="bg-white dark:bg-surface-900 rounded-xl border border-gray-200 dark:border-surface-700 overflow-hidden">
+            <div class="dashboard-welcome-card overflow-hidden">
                 @if (!selectedDomain()) {
-                    <div class="flex flex-col items-center justify-center h-full min-h-[300px] text-center p-8">
-                        <div class="w-12 h-12 bg-gray-100 dark:bg-surface-800 rounded-full flex items-center justify-center mb-3">
-                            <i class="pi pi-database text-gray-400 text-xl"></i>
+                    <div class="flex flex-col items-center justify-center h-full min-h-[320px] text-center p-10">
+                        <div class="w-14 h-14 rounded-xl bg-gray-100 dark:bg-surface-800 flex items-center justify-center mb-4">
+                            <i class="pi pi-database text-gray-400 text-2xl"></i>
                         </div>
-                        <p class="text-sm text-gray-400">Selecciona un dominio para ver y editar sus valores</p>
+                        <p class="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">Selecciona un dominio</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Elegí un dominio de la lista para ver y editar sus valores</p>
                     </div>
                 } @else {
                     <!-- Domain detail header -->
-                    <div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-surface-700">
-                        <div>
-                            <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ selectedDomain()!.name }}</h3>
-                            @if (selectedDomain()!.description) {
-                                <p class="text-xs text-gray-400 mt-0.5">{{ selectedDomain()!.description }}</p>
-                            }
+                    <div class="flex items-center justify-between p-5 border-b border-gray-100 dark:border-surface-700 bg-gray-50/50 dark:bg-surface-800/50">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-500 text-white flex items-center justify-center shrink-0">
+                                <i class="pi pi-database text-base"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ selectedDomain()!.name }}</h3>
+                                @if (selectedDomain()!.description) {
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ selectedDomain()!.description }}</p>
+                                }
+                            </div>
                         </div>
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-surface-800 text-gray-500 dark:text-gray-400">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300">
+                            <i class="pi pi-list text-xs"></i>
                             {{ selectedDomain()!.values.length }} valores
                         </span>
                     </div>

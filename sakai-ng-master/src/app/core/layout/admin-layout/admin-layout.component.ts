@@ -3,18 +3,20 @@ import { RouterModule } from '@angular/router';
 import { AppTopbar } from '@/app/layout/component/app.topbar';
 import { AppSidebar } from '@/app/layout/component/app.sidebar';
 import { AppFooter } from '@/app/layout/component/app.footer';
+import { AdminBreadcrumbComponent } from '../admin-breadcrumb/admin-breadcrumb.component';
 import { LayoutService } from '@/app/layout/service/layout.service';
 
 @Component({
     selector: 'app-admin-layout',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [AppTopbar, AppSidebar, RouterModule, AppFooter],
+    imports: [AppTopbar, AppSidebar, RouterModule, AppFooter, AdminBreadcrumbComponent],
     template: `
         <div class="layout-wrapper" [class]="containerClass()">
             <app-topbar />
             <app-sidebar />
             <div class="layout-main-container">
                 <div class="layout-main">
+                    <app-admin-breadcrumb />
                     <router-outlet />
                 </div>
                 <app-footer />

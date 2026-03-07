@@ -1,4 +1,4 @@
-import { Component, computed, effect, ElementRef, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, effect, ElementRef, inject, OnDestroy, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter, Subject, takeUntil } from 'rxjs';
 import { AppMenu } from './app.menu';
@@ -10,7 +10,14 @@ import { LayoutService } from '@/app/layout/service/layout.service';
     imports: [AppMenu, RouterModule],
     template: `
         <div class="layout-sidebar">
-            <app-menu></app-menu>
+            <div class="sidebar-header">
+                <a class="app-logo" routerLink="/admin/dashboard">
+                    <span class="app-logo-text">TrámiteOnline</span>
+                </a>
+            </div>
+            <div class="layout-menu-container">
+                <app-menu></app-menu>
+            </div>
         </div>
     `
 })

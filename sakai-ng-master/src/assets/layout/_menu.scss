@@ -1,5 +1,10 @@
 @use 'mixins' as *;
 
+/* Apollo-style sidebar: logo, icons and section titles in accent color */
+:root {
+    --sidebar-logo-color: var(--primary-color);
+}
+
 .layout-sidebar {
     position: fixed;
     width: 20rem;
@@ -12,9 +17,48 @@
     transition:
         transform var(--layout-section-transition-duration),
         left var(--layout-section-transition-duration);
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 0;
+    border: 1px solid var(--surface-border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:root[class*='app-dark'] .layout-sidebar {
     background-color: var(--surface-overlay);
-    border-radius: var(--content-border-radius);
-    padding: 0.5rem 1.5rem;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--surface-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--sidebar-logo-color);
+    font-size: 1.125rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+
+    &:focus-visible {
+        @include focused();
+    }
+}
+
+.app-logo-text {
+    color: inherit;
+}
+
+.layout-menu-container {
+    padding: 0.75rem 1rem;
+    overflow-y: auto;
 }
 
 .layout-menu {
@@ -24,11 +68,13 @@
 
     .layout-root-menuitem {
         > .layout-menuitem-root-text {
-            font-size: 0.857rem;
+            font-size: 0.6875rem;
             text-transform: uppercase;
             font-weight: 700;
-            color: var(--text-color);
-            margin: 0.75rem 0;
+            letter-spacing: 0.08em;
+            color: var(--primary-color);
+            margin: 1rem 0 0.5rem;
+            padding: 0 0.5rem;
         }
 
         > a {
@@ -66,28 +112,54 @@
             outline: 0 none;
             color: var(--text-color);
             cursor: pointer;
-            padding: 0.75rem 1rem;
-            border-radius: var(--content-border-radius);
-            transition:
-                box-shadow var(--element-transition-duration);
+            padding: 0.625rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color var(--element-transition-duration), color var(--element-transition-duration);
 
             .layout-menuitem-icon {
-                margin-right: 0.5rem;
+                margin-right: 0.75rem;
+                font-size: 1rem;
+                color: var(--primary-color);
+                flex-shrink: 0;
+            }
+
+            .layout-menuitem-text {
+                color: inherit;
             }
 
             .layout-submenu-toggler {
                 font-size: 75%;
                 margin-left: auto;
+                color: var(--text-color-secondary);
                 transition: transform var(--element-transition-duration);
             }
 
             &.active-route {
-                font-weight: 700;
+                font-weight: 600;
                 color: var(--primary-color);
+                background-color: color-mix(in srgb, var(--primary-color) 12%, transparent);
+
+                .layout-menuitem-icon {
+                    color: var(--primary-color);
+                }
+
+                .layout-menuitem-text {
+                    color: var(--primary-color);
+                }
+
+                .layout-submenu-toggler {
+                    color: var(--primary-color);
+                }
             }
 
-            &:hover {
+            &:hover:not(.active-route) {
                 background-color: var(--surface-hover);
+
+                .layout-menuitem-icon {
+                    color: var(--primary-color);
+                }
             }
 
             &:focus {

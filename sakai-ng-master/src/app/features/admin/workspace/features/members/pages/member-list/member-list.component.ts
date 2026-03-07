@@ -52,22 +52,6 @@ import {
             />
         </div>
 
-        <!-- ─── Stats ──────────────────────────────────────────────────── -->
-        <div class="grid grid-cols-3 gap-3 mb-5">
-            <div class="card p-4 text-center shadow-sm min-h-32 flex flex-col items-center justify-center">
-                <div class="text-2xl font-bold text-gray-800 dark:text-white">{{ members().length }}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium uppercase tracking-wide">Total</div>
-            </div>
-            <div class="card p-4 text-center shadow-sm border-t-2 border-emerald-400 min-h-32 flex flex-col items-center justify-center">
-                <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ activeCount() }}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium uppercase tracking-wide">Activos</div>
-            </div>
-            <div class="card p-4 text-center shadow-sm border-t-2 border-amber-400 min-h-32 flex flex-col items-center justify-center">
-                <div class="text-2xl font-bold text-amber-600 dark:text-amber-400">{{ pendingCount() }}</div>
-                <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 font-medium uppercase tracking-wide">Pendientes</div>
-            </div>
-        </div>
-
         <!-- ─── Search ─────────────────────────────────────────────────── -->
         <div class="mb-4">
             <div class="relative">
@@ -483,9 +467,6 @@ export class MemberListComponent implements OnInit {
     readonly pages = computed(() =>
         Array.from({ length: this.totalPages() }, (_, i) => i + 1)
     );
-
-    readonly activeCount  = computed(() => this.members().filter(m => m.status === 'active').length);
-    readonly pendingCount = computed(() => this.members().filter(m => m.status === 'pending').length);
 
     // ─── Constants ──────────────────────────────────────────────────────
     readonly roleConfig = WORKSPACE_ROLE_CONFIG;

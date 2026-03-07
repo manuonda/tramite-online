@@ -25,14 +25,61 @@ type FilterTab = 'all' | 'draft' | 'published';
     ],
     styles: [`
         .form-card {
-            transition: box-shadow 0.2s, transform 0.15s;
+            transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+            display: flex;
+            flex-direction: column;
+            min-height: 240px;
         }
         .form-card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.09);
-            transform: translateY(-1px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            border-color: #e5e7eb;
         }
-        .form-card:hover .menu-btn { opacity: 1; }
-        .menu-btn { opacity: 0; transition: opacity 0.15s; }
+        :host-context(.dark) .form-card:hover { border-color: var(--surface-600); }
+        .form-card-icon {
+            width: 44px; height: 44px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+        .form-card-icon.published {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+        }
+        .form-card-icon.draft {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+        }
+        .form-card-stat {
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            padding: 0.2rem 0.5rem; border-radius: 6px;
+            font-size: 0.7rem; font-weight: 500;
+            background: #f1f5f9; color: #475569;
+        }
+        :host-context(.dark) .form-card-stat { background: var(--surface-800); color: #94a3b8; }
+        .form-card-btn {
+            flex: 1;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem; font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.15s;
+            border: none; cursor: pointer;
+        }
+        .form-card-btn-primary {
+            background: #2563eb; color: white;
+        }
+        .form-card-btn-primary:hover { background: #1d4ed8; }
+        .form-card-btn-success {
+            background: #10b981; color: white;
+        }
+        .form-card-btn-success:hover { background: #059669; }
+        .form-card-btn-warning {
+            background: #f59e0b; color: white;
+        }
+        .form-card-btn-warning:hover { background: #d97706; }
+        .menu-btn { opacity: 1; }
         .filter-tab {
             padding: 0.4rem 0.875rem;
             border-radius: 9999px;
@@ -53,24 +100,36 @@ type FilterTab = 'all' | 'draft' | 'published';
         }
     `],
     template: `
-        <!-- Header -->
-        <div class="flex items-start justify-between mb-6">
-            <div>
-                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Formularios</h2>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                    Administrá los formularios de este workspace
-                </p>
+        <!-- Header (Apollo-style, como dashboard) -->
+        <div class="mb-8">
+            <div class="dashboard-welcome-card">
+                <div class="p-6">
+                    <div class="flex items-center justify-between gap-4 flex-wrap">
+                        <div class="flex items-center gap-5">
+                            <div class="dashboard-welcome-icon">
+                                <i class="pi pi-file text-xl"></i>
+                            </div>
+                            <div>
+                                <h2 class="text-xl font-semibold text-gray-900 dark:text-white tracking-tight mb-0.5">Formularios</h2>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">
+                                    Administrá los formularios de este workspace
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+                            (click)="openCreate()">
+                            <i class="pi pi-plus"></i>
+                            Nuevo Formulario
+                        </button>
+                    </div>
+                </div>
             </div>
-            <button
-                class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                (click)="openCreate()">
-                <i class="pi pi-plus text-xs"></i>
-                Nuevo Formulario
-            </button>
         </div>
 
-        <!-- Filter Tabs -->
-        <div class="flex items-center gap-2 flex-wrap mb-6">
+        <!-- Filtros y búsqueda (compacto) -->
+        <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+            <div class="flex items-center gap-2 flex-wrap">
             <button class="filter-tab" [class.active]="activeTab() === 'all'"
                 (click)="activeTab.set('all')">
                 Todos ({{ allForms().length }})
@@ -83,21 +142,30 @@ type FilterTab = 'all' | 'draft' | 'published';
                 (click)="activeTab.set('published')">
                 Publicados ({{ publishedForms().length }})
             </button>
+            </div>
+            <div class="flex-1 min-w-0 sm:max-w-xs relative">
+                <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                <input type="text" pInputText
+                    class="w-full pl-9 text-sm"
+                    placeholder="Buscar formularios..."
+                    [ngModel]="searchQuery()"
+                    (ngModelChange)="searchQuery.set($event)" />
+            </div>
         </div>
 
         <!-- Form Cards -->
         @if (filteredForms().length === 0) {
-            <div class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 py-16">
-                <div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-3">
-                    <i class="pi pi-file text-gray-400 text-xl"></i>
+            <div class="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 dark:border-surface-700 py-16 bg-gray-50/50 dark:bg-surface-800/30">
+                <div class="w-14 h-14 rounded-xl bg-gray-100 dark:bg-surface-800 flex items-center justify-center mb-4">
+                    <i class="pi pi-file text-gray-400 text-2xl"></i>
                 </div>
                 @if (activeTab() === 'all') {
                     <p class="text-sm font-medium text-gray-700 mb-1">Sin formularios</p>
                     <p class="text-xs text-gray-400 mb-4">Creá el primer formulario de este workspace.</p>
                     <button
-                        class="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-lg transition-colors"
+                        class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
                         (click)="openCreate()">
-                        <i class="pi pi-plus text-xs"></i> Nuevo Formulario
+                        <i class="pi pi-plus"></i> Nuevo Formulario
                     </button>
                 } @else {
                     <p class="text-sm text-gray-400">No hay formularios en esta categoría.</p>
@@ -106,65 +174,67 @@ type FilterTab = 'all' | 'draft' | 'published';
         } @else {
             <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 @for (form of filteredForms(); track form.id) {
-                    <div class="form-card bg-white dark:bg-surface-900 rounded-xl border border-gray-200 dark:border-surface-700 overflow-hidden">
-                        <!-- Status color bar -->
-                        <div class="h-1"
-                            [style.background]="form.status === 'published' ? '#10b981' : '#d1d5db'"></div>
-                        <div class="p-5">
-                            <div class="flex items-start justify-between gap-2">
+                    <div class="form-card workspace-card overflow-hidden">
+                        <!-- Status bar -->
+                        <div class="h-1.5 rounded-t-xl"
+                            [style.background]="form.status === 'published' ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #6366f1, #4f46e5)'"></div>
+                        <div class="p-5 flex flex-col flex-1">
+                            <div class="flex items-start justify-between gap-3">
                                 <!-- Icon + info -->
-                                <div class="flex items-start gap-3">
-                                    <div class="flex w-9 h-9 shrink-0 items-center justify-center rounded-lg"
-                                        [class]="form.status === 'published'
-                                            ? 'bg-emerald-50 dark:bg-emerald-950 text-emerald-600'
-                                            : 'bg-gray-100 dark:bg-surface-800 text-gray-400'">
-                                        <i class="pi pi-file text-sm"></i>
+                                <div class="flex items-start gap-4">
+                                    <div class="form-card-icon"
+                                        [class.published]="form.status === 'published'"
+                                        [class.draft]="form.status !== 'published'">
+                                        <i class="pi pi-file-edit text-lg"></i>
                                     </div>
-                                    <div class="min-w-0">
+                                    <div class="min-w-0 flex-1">
                                         <div class="flex items-center gap-2 flex-wrap">
                                             <button
-                                                class="text-sm font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 truncate text-left"
+                                                class="text-base font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 truncate text-left transition-colors"
                                                 (click)="goToEditor(form)">
                                                 {{ form.name }}
                                             </button>
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0"
+                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold shrink-0"
                                                 [class]="form.status === 'published'
                                                     ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
-                                                    : 'bg-gray-100 text-gray-500 dark:bg-surface-800 dark:text-gray-400'">
+                                                    : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'">
+                                                <span class="w-1.5 h-1.5 rounded-full shrink-0"
+                                                    [class]="form.status === 'published' ? 'bg-emerald-500' : 'bg-indigo-500'"></span>
                                                 {{ form.status === 'published' ? 'Publicado' : 'Borrador' }}
                                             </span>
                                         </div>
                                         @if (form.description) {
-                                            <p class="text-xs text-gray-400 mt-0.5 line-clamp-2">{{ form.description }}</p>
+                                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{ form.description }}</p>
                                         }
                                     </div>
                                 </div>
 
-                                <!-- Three-dot menu -->
-                                <div class="menu-btn relative shrink-0">
+                                <!-- Menu -->
+                                <div class="menu-btn relative shrink-0 z-20">
                                     <button
-                                        class="w-7 h-7 flex items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-surface-700 text-gray-400 hover:text-gray-600"
-                                        (click)="toggleMenu(form)">
-                                        <i class="pi pi-ellipsis-h text-sm"></i>
+                                        class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-surface-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
+                                        (click)="toggleMenu(form)"
+                                        title="Más opciones">
+                                        <i class="pi pi-ellipsis-v text-base"></i>
                                     </button>
                                     @if (menuOpenFor() === form.id) {
-                                        <div class="absolute right-0 top-8 z-50 bg-white dark:bg-surface-900 border border-gray-200 dark:border-surface-700 rounded-lg shadow-lg py-1 min-w-[160px]">
-                                            <button class="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-surface-800"
+                                        <div class="absolute right-0 top-10 z-[60] bg-white dark:bg-surface-900 border border-gray-200 dark:border-surface-700 rounded-xl shadow-xl py-1.5 min-w-[180px]">
+                                            <button class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors text-left"
                                                 (click)="goToEditor(form); closeMenu()">
-                                                <i class="pi pi-pencil text-xs"></i> Editar
+                                                <i class="pi pi-pencil text-sm text-blue-500"></i> Editar
                                             </button>
-                                            <button class="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-surface-800"
+                                            <button class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors text-left"
                                                 (click)="openEdit(form); closeMenu()">
-                                                <i class="pi pi-tag text-xs"></i> Renombrar
+                                                <i class="pi pi-tag text-sm text-gray-500"></i> Renombrar
                                             </button>
-                                            <button class="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-surface-800"
+                                            <button class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors text-left"
                                                 (click)="duplicate(form); closeMenu()">
-                                                <i class="pi pi-copy text-xs"></i> Duplicar
+                                                <i class="pi pi-copy text-sm text-gray-500"></i> Duplicar
                                             </button>
                                             <hr class="my-1 border-gray-100 dark:border-surface-700">
-                                            <button class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                                            <button class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 transition-colors text-left"
                                                 (click)="confirmDelete(form); closeMenu()">
-                                                <i class="pi pi-trash text-xs"></i> Eliminar
+                                                <i class="pi pi-trash text-sm"></i> Eliminar
                                             </button>
                                         </div>
                                     }
@@ -172,45 +242,40 @@ type FilterTab = 'all' | 'draft' | 'published';
                             </div>
 
                             <!-- Stats row -->
-                            <div class="mt-4 flex items-center justify-between text-xs text-gray-400">
-                                <div class="flex items-center gap-3">
-                                    <span class="flex items-center gap-1">
-                                        <i class="pi pi-list text-xs"></i>
+                            <div class="mt-auto pt-4 flex items-center justify-between flex-wrap gap-2">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="form-card-stat">
+                                        <i class="pi pi-folder text-blue-500"></i>
                                         {{ form.sections.length }} {{ form.sections.length === 1 ? 'sección' : 'secciones' }}
                                     </span>
-                                    <span class="text-gray-200">|</span>
-                                    <span class="flex items-center gap-1">
-                                        <i class="pi pi-question-circle text-xs"></i>
+                                    <span class="form-card-stat">
+                                        <i class="pi pi-question-circle text-emerald-500"></i>
                                         {{ countQuestions(form) }} {{ countQuestions(form) === 1 ? 'pregunta' : 'preguntas' }}
                                     </span>
                                 </div>
-                                <span class="flex items-center gap-1">
-                                    <i class="pi pi-calendar text-xs"></i>
+                                <span class="form-card-stat">
+                                    <i class="pi pi-calendar text-amber-500"></i>
                                     {{ formatDate(form.updatedAt) }}
                                 </span>
                             </div>
 
                             <!-- Action buttons -->
-                            <div class="mt-3 pt-3 px-2 pb-2 -mx-2 rounded-lg border-t border-gray-100 dark:border-surface-700 bg-gray-50/70 dark:bg-surface-800/70 flex items-center gap-2">
-                                <button
-                                    class="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-lg shadow-sm transition-colors"
+                            <div class="mt-4 pt-4 flex items-center gap-2 border-t border-gray-100 dark:border-surface-700">
+                                <button class="form-card-btn form-card-btn-primary"
                                     (click)="goToEditor(form)">
-                                    <i class="pi pi-pencil text-xs"></i> Editar
+                                    <i class="pi pi-pencil"></i> Editar
                                 </button>
-                                <button
-                                    class="flex-1 flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold rounded-lg shadow-sm transition-colors"
-                                    [class.text-white]="true"
-                                    [class.bg-emerald-600]="form.status !== 'published'"
-                                    [class.hover:bg-emerald-700]="form.status !== 'published'"
-                                    [class.bg-amber-500]="form.status === 'published'"
-                                    [class.hover:bg-amber-600]="form.status === 'published'"
-                                    (click)="toggleStatus(form)">
-                                    @if (form.status === 'published') {
-                                        <i class="pi pi-eye-slash text-xs"></i> Despublicar
-                                    } @else {
-                                        <i class="pi pi-send text-xs"></i> Publicar
-                                    }
-                                </button>
+                                @if (form.status === 'published') {
+                                    <button class="form-card-btn form-card-btn-warning"
+                                        (click)="toggleStatus(form)">
+                                        <i class="pi pi-eye-slash"></i> Despublicar
+                                    </button>
+                                } @else {
+                                    <button class="form-card-btn form-card-btn-success"
+                                        (click)="toggleStatus(form)">
+                                        <i class="pi pi-send"></i> Publicar
+                                    </button>
+                                }
                             </div>
                         </div>
                     </div>
@@ -275,7 +340,7 @@ type FilterTab = 'all' | 'draft' | 'published';
         <p-confirmDialog />
 
         @if (menuOpenFor()) {
-            <div class="fixed inset-0 z-40" (click)="closeMenu()"></div>
+            <div class="fixed inset-0 z-[55]" (click)="closeMenu()"></div>
         }
     `
 })
@@ -289,6 +354,7 @@ export class FormListComponent implements OnInit {
     private readonly fb = inject(FormBuilder);
 
     readonly activeTab = signal<FilterTab>('all');
+    readonly searchQuery = signal('');
     readonly menuOpenFor = signal<string | null>(null);
     readonly editingForm = signal<Form | null>(null);
     dialogVisible = false;
@@ -298,11 +364,18 @@ export class FormListComponent implements OnInit {
     readonly draftForms = computed(() => this.allForms().filter(f => f.status === 'draft'));
     readonly publishedForms = computed(() => this.allForms().filter(f => f.status === 'published'));
     readonly filteredForms = computed(() => {
+        let list: Form[];
         switch (this.activeTab()) {
-            case 'draft':     return this.draftForms();
-            case 'published': return this.publishedForms();
-            default:          return this.allForms();
+            case 'draft':     list = this.draftForms(); break;
+            case 'published': list = this.publishedForms(); break;
+            default:          list = this.allForms(); break;
         }
+        const q = this.searchQuery().toLowerCase().trim();
+        if (!q) return list;
+        return list.filter(f =>
+            f.name.toLowerCase().includes(q) ||
+            (f.description ?? '').toLowerCase().includes(q)
+        );
     });
 
     readonly dlgForm = this.fb.nonNullable.group({

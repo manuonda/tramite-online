@@ -23,16 +23,7 @@ import { FormBuilderService } from '../../features/form-builder/services/form-bu
         ToastModule, ConfirmDialogModule, TooltipModule
     ],
     styles: [`
-        .ws-card {
-            cursor: pointer;
-            transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
-        }
-        .ws-card:hover {
-            box-shadow: 0 4px 16px rgba(0,0,0,0.10);
-            transform: translateY(-1px);
-        }
-        .ws-card:hover .menu-btn { opacity: 1; }
-        .menu-btn { opacity: 0; transition: opacity 0.15s; }
+        .menu-btn { opacity: 1; }
         .color-dot {
             width: 2rem; height: 2rem;
             border-radius: 50%;
@@ -58,23 +49,80 @@ import { FormBuilderService } from '../../features/form-builder/services/form-bu
         .icon-btn.selected { background: #eff6ff; border-color: #3b82f6; color: #1d4ed8; }
     `],
     template: `
-        <!-- Page Header -->
-        <div class="flex items-start justify-between mb-8">
-            <div>
-                <h1 class="text-2xl font-semibold text-gray-900 dark:text-white tracking-tight">
-                    Espacios de Trabajo
-                </h1>
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                    Gestiona tus workspaces y organiza tus formularios.
-                </p>
+        <!-- Header (Apollo-style, igual que dashboard) -->
+        <div class="mb-8">
+            <div class="dashboard-welcome-card">
+                <div class="p-6">
+                    <div class="flex items-center gap-5">
+                        <div class="dashboard-welcome-icon">
+                            <i class="pi pi-th-large text-2xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h1 class="text-2xl font-semibold text-gray-900 dark:text-white mb-1 tracking-tight">
+                                Espacios de Trabajo
+                            </h1>
+                            <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">
+                                Gestiona tus workspaces y organiza tus formularios.
+                            </p>
+                        </div>
+                        <button type="button" class="dashboard-welcome-badge flex items-center gap-2"
+                            (click)="openCreate()">
+                            <i class="pi pi-plus text-sm"></i>
+                            <span class="text-sm font-semibold">Nuevo Workspace</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <button
-                class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors"
-                (click)="openCreate()">
-                <i class="pi pi-plus text-xs"></i>
-                Nuevo Workspace
-            </button>
         </div>
+
+        <!-- Stats (Apollo-style) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="dashboard-stat-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 rounded-xl bg-blue-100 dark:bg-blue-950">
+                        <i class="pi pi-th-large text-lg text-blue-600"></i>
+                    </div>
+                    <span class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{{ workspaces().length }}</span>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Espacios creados</p>
+            </div>
+            <div class="dashboard-stat-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 rounded-xl bg-emerald-100 dark:bg-emerald-950">
+                        <i class="pi pi-file text-lg text-emerald-600"></i>
+                    </div>
+                    <span class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{{ totalForms() }}</span>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Formularios totales</p>
+            </div>
+            <div class="dashboard-stat-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 rounded-xl bg-amber-100 dark:bg-amber-950">
+                        <i class="pi pi-check-circle text-lg text-amber-600"></i>
+                    </div>
+                    <span class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{{ totalPublished() }}</span>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Formularios publicados</p>
+            </div>
+            <div class="dashboard-stat-card">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="p-3 rounded-xl bg-violet-100 dark:bg-violet-950">
+                        <i class="pi pi-users text-lg text-violet-600"></i>
+                    </div>
+                    <span class="text-3xl font-bold text-gray-900 dark:text-white tracking-tight">{{ totalMembers() }}</span>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">Miembros</p>
+            </div>
+        </div>
+
+        <!-- Sección Espacios -->
+        <div class="mb-6">
+            <div class="flex items-center gap-3 mb-5">
+                <div class="dashboard-section-icon">
+                    <i class="pi pi-folder-open text-sm"></i>
+                </div>
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight">Espacios</h2>
+            </div>
 
         <!-- Workspace Grid -->
         @if (isLoading()) {
@@ -114,24 +162,24 @@ import { FormBuilderService } from '../../features/form-builder/services/form-bu
                 </button>
             </div>
         } @else {
-            <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            <div class="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 @for (ws of workspaces(); track ws.id) {
-                    <div class="ws-card bg-white dark:bg-surface-900 rounded-xl border border-gray-200 dark:border-surface-700 overflow-hidden relative"
+                    <div class="workspace-card relative"
                         (click)="goTo(ws)">
 
                         <!-- Colored top border -->
-                        <div class="h-1" [style.background-color]="ws.color"></div>
+                        <div class="h-1 shrink-0" [style.background-color]="ws.color"></div>
 
-                        <div class="p-5">
-                            <div class="flex items-start justify-between gap-2">
+                        <div class="p-5 flex flex-col flex-1 min-h-0">
+                            <div class="flex items-start justify-between gap-2 flex-1">
                                 <!-- Icon + info -->
-                                <div class="flex items-start gap-3">
+                                <div class="flex items-start gap-3 min-w-0">
                                     <div class="flex w-10 h-10 shrink-0 items-center justify-center rounded-lg"
                                         [style.background-color]="ws.color + '20'"
                                         [style.color]="ws.color">
                                         <i [class]="ws.icon + ' text-lg'"></i>
                                     </div>
-                                    <div>
+                                    <div class="min-w-0 flex-1">
                                         <h3 class="text-sm font-semibold text-gray-900 dark:text-white leading-snug">
                                             {{ ws.name }}
                                         </h3>
@@ -143,24 +191,24 @@ import { FormBuilderService } from '../../features/form-builder/services/form-bu
                                     </div>
                                 </div>
 
-                                <!-- Three-dot menu -->
-                                <div class="menu-btn relative shrink-0">
+                                <!-- Three-dot menu - siempre visible -->
+                                <div class="menu-btn relative shrink-0 z-10">
                                     <button
-                                        class="w-7 h-7 flex items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-surface-700 text-gray-400 hover:text-gray-600"
+                                        class="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 dark:bg-surface-700 hover:bg-gray-200 dark:hover:bg-surface-600 text-gray-600 dark:text-gray-300 transition-colors"
                                         (click)="$event.stopPropagation(); toggleMenu(ws)"
                                         pTooltip="Opciones" tooltipPosition="top">
-                                        <i class="pi pi-ellipsis-h text-sm"></i>
+                                        <i class="pi pi-ellipsis-v text-sm"></i>
                                     </button>
                                     @if (menuOpenFor() === ws.id) {
-                                        <div class="absolute right-0 top-8 z-50 bg-white dark:bg-surface-900 border border-gray-200 dark:border-surface-700 rounded-lg shadow-lg py-1 min-w-[140px]"
+                                        <div class="absolute right-0 top-full mt-1 z-[100] bg-white dark:bg-surface-900 border border-gray-200 dark:border-surface-700 rounded-lg shadow-xl py-1 min-w-[140px]"
                                             (click)="$event.stopPropagation()">
                                             <button
-                                                class="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-surface-800"
+                                                class="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-surface-800 text-left"
                                                 (click)="openEdit(ws); closeMenu()">
                                                 <i class="pi pi-pencil text-xs"></i> Editar
                                             </button>
                                             <button
-                                                class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+                                                class="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 text-left"
                                                 (click)="confirmDelete(ws); closeMenu()">
                                                 <i class="pi pi-trash text-xs"></i> Eliminar
                                             </button>
@@ -169,8 +217,8 @@ import { FormBuilderService } from '../../features/form-builder/services/form-bu
                                 </div>
                             </div>
 
-                            <!-- Stats -->
-                            <div class="mt-4 flex items-center gap-2 flex-wrap">
+                            <!-- Stats - pegados al footer de la card -->
+                            <div class="mt-auto pt-4 flex items-center gap-2 flex-wrap">
                                 <span class="inline-flex items-center gap-1 text-xs text-gray-500 bg-gray-100 dark:bg-surface-800 px-2.5 py-1 rounded-full">
                                     <i class="pi pi-file text-xs"></i>
                                     {{ getFormCount(ws) }} {{ getFormCount(ws) === 1 ? 'formulario' : 'formularios' }}
@@ -181,7 +229,7 @@ import { FormBuilderService } from '../../features/form-builder/services/form-bu
                                         {{ getPublishedCount(ws) }} {{ getPublishedCount(ws) === 1 ? 'publicado' : 'publicados' }}
                                     </span>
                                 }
-                                <span class="inline-flex items-center gap-1 text-xs text-gray-400 bg-gray-50 dark:bg-surface-800 px-2.5 py-1 rounded-full">
+                                <span class="inline-flex items-center gap-1 text-xs font-medium text-violet-700 bg-violet-100 dark:bg-violet-950 dark:text-violet-300 px-2.5 py-1 rounded-full">
                                     <i class="pi pi-users text-xs"></i>
                                     {{ ws.membersCount }}
                                 </span>
@@ -191,6 +239,7 @@ import { FormBuilderService } from '../../features/form-builder/services/form-bu
                 }
             </div>
         }
+        </div>
 
         <!-- ── Workspace Dialog (Create / Edit) ───────────────────────── -->
         <p-dialog
@@ -296,9 +345,9 @@ import { FormBuilderService } from '../../features/form-builder/services/form-bu
         <p-toast />
         <p-confirmDialog />
 
-        <!-- Close dropdown on outside click -->
+        <!-- Overlay para cerrar menú al hacer clic fuera (z-index menor que el dropdown) -->
         @if (menuOpenFor()) {
-            <div class="fixed inset-0 z-40" (click)="closeMenu()"></div>
+            <div class="fixed inset-0 z-[99]" (click)="closeMenu()" aria-hidden="true"></div>
         }
     `
 })
@@ -312,6 +361,16 @@ export class WorkspaceListComponent implements OnInit {
 
     readonly workspaces = this.workspaceService.workspaces;
     readonly isLoading = this.workspaceService.loading;
+
+    readonly totalForms = computed(() =>
+        this.workspaces().reduce((sum, ws) => sum + this.getFormCount(ws), 0)
+    );
+    readonly totalPublished = computed(() =>
+        this.workspaces().reduce((sum, ws) => sum + this.getPublishedCount(ws), 0)
+    );
+    readonly totalMembers = computed(() =>
+        this.workspaces().reduce((sum, ws) => sum + (ws.membersCount ?? 0), 0)
+    );
 
     dialogVisible = false;
     readonly editingWs = signal<Workspace | null>(null);

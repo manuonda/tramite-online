@@ -39,11 +39,6 @@ export class AppMenu {
                         label: 'Workspaces',
                         icon: 'pi pi-fw pi-th-large',
                         routerLink: ['/admin/workspaces']
-                    },
-                    {
-                        label: 'Nuevo Workspace',
-                        icon: 'pi pi-fw pi-plus-circle',
-                        routerLink: ['/admin/workspaces/create']
                     }
                 ]
             },

@@ -105,7 +105,10 @@ export class WorkspaceService {
         const updated = MOCK_WORKSPACES[idx];
         return of(updated).pipe(
             delay(400),
-            tap(w => this._workspaces.update(list => list.map(item => item.id === id ? w : item)))
+            tap(w => {
+                this._workspaces.update(list => list.map(item => item.id === id ? w : item));
+                if (this._selected()?.id === id) this._selected.set(w);
+            })
         );
     }
 
@@ -114,7 +117,10 @@ export class WorkspaceService {
         if (idx !== -1) MOCK_WORKSPACES.splice(idx, 1);
         return of(void 0).pipe(
             delay(300),
-            tap(() => this._workspaces.update(list => list.filter(w => w.id !== id)))
+            tap(() => {
+                this._workspaces.update(list => list.filter(w => w.id !== id));
+                if (this._selected()?.id === id) this._selected.set(null);
+            })
         );
     }
 }

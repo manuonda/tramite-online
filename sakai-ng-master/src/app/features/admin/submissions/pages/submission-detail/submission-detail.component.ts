@@ -16,6 +16,7 @@ import {
     Form, Section, Question, DomainValue, QuestionType,
     QUESTION_TYPE_CONFIG
 } from '../../../workspace/features/form-builder/models/form-builder.models';
+import { BreadcrumbService } from '@core/services/breadcrumb.service';
 import { FormBuilderService } from '../../../workspace/features/form-builder/services/form-builder.service';
 import {
     Submission, SubmissionAnswer, SubmissionStatus,
@@ -126,15 +127,6 @@ type AnswerValue = string | number | boolean | string[] | null;
                     routerLink="/admin/submissions" />
             </div>
         } @else {
-
-            <!-- ── Back link (mismo estilo que form-editor) ──────────────────── -->
-            <div class="flex items-center gap-2 mb-5">
-                <a class="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-colors no-underline cursor-pointer"
-                    [routerLink]="['/admin/submissions']">
-                    <i class="pi pi-arrow-left text-xs"></i>
-                    Respuestas
-                </a>
-            </div>
 
             <!-- ── Header Card (mismo diseño que form-editor Form Header) ───── -->
             <div class="bg-white dark:bg-surface-900 rounded-xl border border-gray-200 dark:border-surface-700 p-5 mb-5 shadow-sm">
@@ -357,15 +349,22 @@ type AnswerValue = string | number | boolean | string[] | null;
                     </div>
                 </div>
                 @if (isEditMode()) {
-                    <div class="mt-4 px-4 py-4 rounded-xl border border-gray-200 dark:border-surface-700 bg-gray-50/70 dark:bg-surface-800/50 flex flex-wrap gap-3 justify-end">
-                        <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true"
-                            size="small" (onClick)="cancelEdit()" />
-                        <p-button label="Guardar" icon="pi pi-check" severity="info" size="small"
-                            [loading]="isSaving()"
-                            (onClick)="saveAnswers()" />
-                        <p-button label="Finalizar" icon="pi pi-check-circle" severity="success" size="small"
-                            [loading]="isSaving()"
-                            (onClick)="finalizeForm()" />
+                    <div class="mt-4 px-4 py-4 rounded-xl border border-gray-200 dark:border-surface-700 bg-gray-50/70 dark:bg-surface-800/50 flex flex-wrap gap-3 justify-between items-center">
+                        <a routerLink="/admin/submissions"
+                            class="flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors no-underline">
+                            <i class="pi pi-arrow-left text-xs"></i>
+                            Volver
+                        </a>
+                        <div class="flex flex-wrap gap-3">
+                            <p-button label="Cancelar" icon="pi pi-times" severity="secondary" [outlined]="true"
+                                size="small" (onClick)="cancelEdit()" />
+                            <p-button label="Guardar" icon="pi pi-check" severity="info" size="small"
+                                [loading]="isSaving()"
+                                (onClick)="saveAnswers()" />
+                            <p-button label="Finalizar" icon="pi pi-check-circle" severity="success" size="small"
+                                [loading]="isSaving()"
+                                (onClick)="finalizeForm()" />
+                        </div>
                     </div>
                 }
             </div>
@@ -380,6 +379,7 @@ export class SubmissionDetailComponent implements OnInit {
     private readonly messageService = inject(MessageService);
     private readonly router = inject(Router);
     private readonly route = inject(ActivatedRoute);
+    private readonly breadcrumbSvc = inject(BreadcrumbService);
 
     readonly submissionId = input<string>('');
 
@@ -416,6 +416,9 @@ export class SubmissionDetailComponent implements OnInit {
 
         this.submissionSvc.getById(id).subscribe(sub => {
             this.isLoading.set(false);
+            if (sub) {
+                this.breadcrumbSvc.setCustomLabel(sub.submittedBy, ['/admin/submissions', sub.id]);
+            }
             if (sub?.notes) this.notesValue = sub.notes;
             if (sub?.answers) {
                 const map: Record<string, AnswerValue> = {};

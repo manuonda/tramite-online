@@ -36,6 +36,43 @@ type AnswerValue = string | number | boolean | string[] | null;
         TagModule, TextareaModule, ToastModule, TooltipModule,
     ],
     styles: [`
+        .submission-header-card {
+            background: var(--surface-card);
+            border-radius: 16px;
+            border: 1px solid var(--surface-border);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        }
+        .submission-icon {
+            width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
+            color: white;
+            box-shadow: 0 4px 12px rgba(13,148,136,0.3);
+            flex-shrink: 0;
+        }
+        .sub-badge {
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            padding: 0.2rem 0.5rem; border-radius: 9999px;
+            font-size: 0.75rem; font-weight: 500;
+        }
+        .sub-badge-info { background: #eff6ff; color: #1d4ed8; }
+        :host-context(.dark) .sub-badge-info { background: rgba(59,130,246,0.2); color: #93c5fd; }
+        .sub-badge-muted { background: #f1f5f9; color: #64748b; }
+        :host-context(.dark) .sub-badge-muted { background: var(--surface-800); color: #94a3b8; }
+        .sub-action-btn {
+            display: inline-flex; align-items: center; gap: 0.375rem;
+            padding: 0.35rem 0.75rem; border-radius: 8px;
+            font-size: 0.8125rem; font-weight: 600;
+            transition: all 0.15s; border: 1px solid;
+        }
+        .sub-action-edit {
+            background: white; color: #4b5563; border-color: #e5e7eb;
+        }
+        .sub-action-edit:hover { background: #f9fafb; border-color: #d1d5db; color: #1f2937; }
+        :host-context(.dark) .sub-action-edit { background: var(--surface-800); color: #e5e7eb; border-color: var(--surface-600); }
+        .sub-action-status-inactive { background: white; color: #4b5563; border-color: #e5e7eb; }
+        :host-context(.dark) .sub-action-status-inactive { background: var(--surface-800); color: #e5e7eb; border-color: var(--surface-600); }
         .edit-input {
             width: 100%; padding: 10px 14px;
             border: 1.5px solid #e5e7eb; border-radius: 8px;
@@ -73,13 +110,13 @@ type AnswerValue = string | number | boolean | string[] | null;
             border-color: var(--surface-700);
         }
         .action-btn {
-            width: 28px; height: 28px;
+            width: 32px; height: 32px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 6px; transition: all 0.12s; border: none;
-            background: transparent; cursor: pointer; color: #9ca3af;
+            border-radius: 8px; transition: all 0.15s; border: none;
+            background: transparent; cursor: pointer; color: #6b7280;
         }
-        .action-btn:hover { background: #f3f4f6; color: #4b5563; }
-        :host-context(.dark) .action-btn:hover { background: var(--surface-700); color: #e2e8f0; }
+        .action-btn:hover:not(:disabled) { background: #f3f4f6; color: #374151; }
+        :host-context(.dark) .action-btn:hover:not(:disabled) { background: var(--surface-700); color: #e5e7eb; }
         .type-badge {
             display: inline-flex; align-items: center;
             padding: 0.175rem 0.6rem;
@@ -89,6 +126,13 @@ type AnswerValue = string | number | boolean | string[] | null;
             white-space: nowrap;
         }
         :host-context(.dark) .type-badge { background: var(--surface-800); color: #94a3b8; }
+        .required-badge {
+            display: inline-flex; align-items: center;
+            padding: 0.175rem 0.6rem; border-radius: 9999px;
+            font-size: 0.7rem; font-weight: 500;
+            background: #fef2f2; color: #dc2626;
+        }
+        :host-context(.dark) .required-badge { background: rgba(220,38,38,0.1); color: #f87171; }
         .item-row {
             display: grid;
             grid-template-columns: minmax(180px, 0.45fr) 1fr;
@@ -128,60 +172,89 @@ type AnswerValue = string | number | boolean | string[] | null;
             </div>
         } @else {
 
-            <!-- ── Header Card (mismo diseño que form-editor Form Header) ───── -->
-            <div class="bg-white dark:bg-surface-900 rounded-xl border border-gray-200 dark:border-surface-700 p-5 mb-5 shadow-sm">
-                <div class="flex items-start justify-between gap-4 flex-wrap">
-                    <div class="flex-1 min-w-0">
-                        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-0.5">
-                            {{ submission()!.submittedBy }}
-                        </h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">
-                            {{ submission()!.formName }} · {{ submission()!.workspaceName }}
-                        </p>
-                        <div class="flex items-center gap-4 mt-2.5 text-xs text-gray-400">
-                            @if (formStructure(); as form) {
-                                <span class="flex items-center gap-1">
-                                    <i class="pi pi-list"></i>
-                                    {{ sortedSections(form).length }} {{ sortedSections(form).length === 1 ? 'sección' : 'secciones' }}
-                                </span>
-                                <span class="flex items-center gap-1">
-                                    <i class="pi pi-question-circle"></i>
-                                    {{ submission()!.answers.length }} respuestas
-                                </span>
-                            }
-                            <span class="flex items-center gap-1">
-                                <i class="pi pi-clock"></i>
-                                Enviado {{ formatDate(submission()!.submittedAt) }} a las {{ formatTime(submission()!.submittedAt) }}
-                            </span>
+            <!-- ── Header Card (estilo workspace-header-card) ────────────────── -->
+            <div class="mb-5">
+                <div class="submission-header-card">
+                    <div class="p-2.5">
+                        <div class="flex items-center justify-between gap-4 mb-2">
+                            <div class="flex items-center gap-2">
+                                <a [routerLink]="['/admin/submissions']"
+                                    class="inline-flex items-center justify-center p-1.5 rounded-lg bg-teal-100 dark:bg-teal-950 text-teal-600 dark:text-teal-400 hover:bg-teal-200 dark:hover:bg-teal-900/50 transition-all no-underline shrink-0"
+                                    pTooltip="Volver a respuestas" tooltipPosition="bottom">
+                                    <i class="pi pi-arrow-left text-xs"></i>
+                                </a>
+                                <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Respuesta</span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex items-center gap-3 shrink-0">
-                        <p-tag
-                            [value]="statusConfig[submission()!.status].label"
-                            [severity]="statusConfig[submission()!.status].severity" />
-                        @if (!isEditMode()) {
-                            <a [routerLink]="['/admin/submissions', submission()!.id, 'edit']"
-                                class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-surface-600 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors no-underline">
-                                <i class="pi pi-pencil text-xs"></i>
-                                Editar
-                            </a>
-                            @for (s of statusOptions; track s.value) {
-                                <p-button
-                                    [label]="s.label"
-                                    [icon]="statusConfig[s.value].icon"
-                                    [severity]="statusConfig[s.value].severity"
-                                    [outlined]="submission()!.status !== s.value"
-                                    size="small"
-                                    pTooltip="Cambiar a {{ s.label }}" tooltipPosition="top"
-                                    (onClick)="changeStatus(s.value)" />
-                            }
-                        }
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <!-- Identidad -->
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="submission-icon shrink-0">
+                                    <i class="pi pi-inbox text-base"></i>
+                                </div>
+                                <div class="min-w-0">
+                                    <h2 class="text-base font-semibold text-gray-900 dark:text-white mb-0 tracking-tight truncate">{{ submission()!.submittedBy }}</h2>
+                                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-tight truncate">{{ submission()!.formName }} · {{ submission()!.workspaceName }}</p>
+                                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
+                                        @if (formStructure(); as form) {
+                                            <span class="sub-badge sub-badge-info">
+                                                <i class="pi pi-list text-xs"></i>
+                                                {{ sortedSections(form).length }} {{ sortedSections(form).length === 1 ? 'sección' : 'secciones' }}
+                                            </span>
+                                            <span class="sub-badge sub-badge-info">
+                                                <i class="pi pi-question-circle text-xs"></i>
+                                                {{ submission()!.answers.length }} respuestas
+                                            </span>
+                                        }
+                                        <span class="sub-badge sub-badge-muted">
+                                            <i class="pi pi-clock text-xs"></i>
+                                            {{ formatDate(submission()!.submittedAt) }} a las {{ formatTime(submission()!.submittedAt) }}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Estado + Acciones (derecha) -->
+                            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+                                <div class="flex items-center gap-2">
+                                    <span class="sub-badge font-semibold"
+                                        [style.background]="statusConfig[submission()!.status].bg"
+                                        [style.color]="statusConfig[submission()!.status].color">
+                                        <i [class]="statusConfig[submission()!.status].icon + ' text-xs'"></i>
+                                        {{ statusConfig[submission()!.status].label }}
+                                    </span>
+                                </div>
+                                @if (!isEditMode()) {
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <a [routerLink]="['/admin/submissions', submission()!.id, 'edit']"
+                                            class="sub-action-btn sub-action-edit no-underline"
+                                            pTooltip="Editar respuestas" tooltipPosition="top">
+                                            <i class="pi pi-pencil text-xs"></i>
+                                            Editar
+                                        </a>
+                                        @for (s of statusOptions; track s.value) {
+                                            <button type="button"
+                                                class="sub-action-btn shrink-0"
+                                                [class.sub-action-status-inactive]="submission()!.status !== s.value"
+                                                [style.background]="submission()!.status === s.value ? statusConfig[s.value].bg : null"
+                                                [style.color]="submission()!.status === s.value ? statusConfig[s.value].color : null"
+                                                [style.border-color]="submission()!.status === s.value ? statusConfig[s.value].color : null"
+                                                (click)="changeStatus(s.value)"
+                                                pTooltip="Cambiar a {{ s.label }}" tooltipPosition="top">
+                                                <i [class]="statusConfig[s.value].icon + ' text-xs'"></i>
+                                                {{ s.label }}
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- ── Secciones (mismo diseño que form-editor) ──────────────────── -->
-            <div class="mb-6">
+            <!-- ── Secciones (card estilo p-tabpanel / form-editor) ───────────── -->
+            <div class="bg-white dark:bg-surface-900 rounded-xl border border-gray-100 dark:border-surface-700 mb-5 overflow-hidden shadow-sm">
+                <div class="p-6">
                 @if (formStructure(); as form) {
                     <div class="space-y-3">
                         @for (section of sortedSections(form); track section.id; let sIdx = $index) {
@@ -224,10 +297,15 @@ type AnswerValue = string | number | boolean | string[] | null;
                                                     <i [class]="getTypeIcon(question.type) + ' text-xs'"></i>
                                                 </div>
                                                 <div class="flex flex-col min-w-0">
-                                                    <span class="text-sm font-medium text-gray-800 dark:text-white truncate">
-                                                        {{ question.label || 'Sin título' }}
-                                                    </span>
-                                                    <span class="type-badge w-fit mt-0.5">{{ getTypeLabel(question.type) }}</span>
+                                                    <div class="flex items-center gap-2 flex-wrap">
+                                                        <span class="text-sm font-medium text-gray-800 dark:text-white truncate">
+                                                            {{ question.label || 'Sin título' }}
+                                                        </span>
+                                                        <span class="type-badge shrink-0">{{ getTypeLabel(question.type) }}</span>
+                                                        @if (question.required) {
+                                                            <span class="required-badge shrink-0">Requerido</span>
+                                                        }
+                                                    </div>
                                                 </div>
                                             </div>
                                             <!-- Columna 2: respuesta -->
@@ -325,7 +403,7 @@ type AnswerValue = string | number | boolean | string[] | null;
                     </div>
                 }
                 <!-- Observaciones / Notas (arriba de los botones) -->
-                <div class="mt-4 bg-white dark:bg-surface-900 rounded-xl border border-gray-200 dark:border-surface-700 shadow-sm overflow-hidden">
+                <div class="mt-4 rounded-xl border border-gray-200 dark:border-surface-700 shadow-sm overflow-hidden bg-gray-50/50 dark:bg-surface-800/30">
                     <div class="px-4 py-3 border-b border-gray-100 dark:border-surface-700 bg-gray-50 dark:bg-surface-800">
                         <div class="flex items-center gap-2">
                             <i class="pi pi-comment text-amber-500"></i>
@@ -351,7 +429,7 @@ type AnswerValue = string | number | boolean | string[] | null;
                 @if (isEditMode()) {
                     <div class="mt-4 px-4 py-4 rounded-xl border border-gray-200 dark:border-surface-700 bg-gray-50/70 dark:bg-surface-800/50 flex flex-wrap gap-3 justify-between items-center">
                         <a routerLink="/admin/submissions"
-                            class="flex items-center gap-1.5 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:hover:text-gray-100 transition-colors no-underline">
+                            class="flex items-center gap-1.5 text-sm font-medium text-teal-600 dark:text-teal-400 hover:text-teal-700 dark:hover:text-teal-300 transition-colors no-underline">
                             <i class="pi pi-arrow-left text-xs"></i>
                             Volver
                         </a>
@@ -367,6 +445,7 @@ type AnswerValue = string | number | boolean | string[] | null;
                         </div>
                     </div>
                 }
+                </div>
             </div>
         }
 

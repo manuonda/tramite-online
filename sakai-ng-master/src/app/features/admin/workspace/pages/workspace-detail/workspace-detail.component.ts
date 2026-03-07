@@ -1,6 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal, effect } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, input, OnInit, signal, effect, computed } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -10,6 +12,7 @@ import { ToastModule } from 'primeng/toast';
 import { SelectModule } from 'primeng/select';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TooltipModule } from 'primeng/tooltip';
+import { TabsModule } from 'primeng/tabs';
 import { BreadcrumbService } from '@core/services/breadcrumb.service';
 import { Workspace, WorkspaceStatus, WORKSPACE_COLORS, WORKSPACE_ICONS } from '../../models/workspace.model';
 import { WorkspaceService } from '../../services/workspace.service';
@@ -24,7 +27,7 @@ interface TabItem { label: string; icon: string; route: string; }
     imports: [
         RouterModule, FormsModule, ReactiveFormsModule,
         DialogModule, ButtonModule, InputTextModule, TextareaModule, ToastModule, SelectModule,
-        ConfirmDialogModule, TooltipModule
+        ConfirmDialogModule, TooltipModule, TabsModule
     ],
     styles: [`
         .workspace-header-card {
@@ -34,18 +37,18 @@ interface TabItem { label: string; icon: string; route: string; }
             box-shadow: 0 4px 20px rgba(0,0,0,0.06);
         }
         .workspace-icon {
-            width: 56px; height: 56px;
+            width: 40px; height: 40px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 14px;
+            border-radius: 10px;
             background: linear-gradient(135deg, var(--ws-color) 0%, var(--ws-color) 100%);
             color: white;
             box-shadow: 0 6px 16px rgba(0,0,0,0.2);
             flex-shrink: 0;
         }
         .ws-badge {
-            display: inline-flex; align-items: center; gap: 0.375rem;
-            padding: 0.35rem 0.75rem; border-radius: 9999px;
-            font-size: 0.8125rem; font-weight: 500;
+            display: inline-flex; align-items: center; gap: 0.25rem;
+            padding: 0.2rem 0.5rem; border-radius: 9999px;
+            font-size: 0.75rem; font-weight: 500;
         }
         .ws-badge-forms {
             background: #eff6ff; color: #1d4ed8;
@@ -56,9 +59,9 @@ interface TabItem { label: string; icon: string; route: string; }
         }
         :host-context(.dark) .ws-badge-members { background: rgba(139,92,246,0.2); color: #c4b5fd; }
         .ws-action-btn {
-            display: inline-flex; align-items: center; gap: 0.5rem;
-            padding: 0.5rem 1rem; border-radius: 10px;
-            font-size: 0.875rem; font-weight: 600;
+            display: inline-flex; align-items: center; gap: 0.375rem;
+            padding: 0.35rem 0.75rem; border-radius: 8px;
+            font-size: 0.8125rem; font-weight: 600;
             transition: all 0.15s; border: 1px solid;
         }
         .ws-action-edit {
@@ -82,7 +85,7 @@ interface TabItem { label: string; icon: string; route: string; }
         }
         .ws-action-delete:hover { background: #fee2e2; color: #991b1b; }
         :host-context(.dark) .ws-action-delete { background: rgba(220,38,38,0.15); color: #f87171; border-color: rgba(220,38,38,0.4); }
-        :host ::ng-deep a.active-tab {
+        :host ::ng-deep .custom-tabs .p-tablist .p-tab[data-p-active="true"] {
             color: #3b82f6;
             border-bottom-color: #3b82f6;
             font-weight: 600;
@@ -108,22 +111,30 @@ interface TabItem { label: string; icon: string; route: string; }
     template: `
         @if (workspace(); as ws) {
             <!-- Header card mejorado -->
-            <div class="mb-8">
+            <div class="mb-5">
                 <div class="workspace-header-card">
-                    <div class="p-6">
-                        <div class="flex items-center gap-6 flex-wrap">
-                            <div class="flex items-center gap-6 flex-1 min-w-0">
+                    <div class="p-3">
+                        <div class="flex items-center gap-2 mb-2">
+                            <a [routerLink]="['/admin/workspaces']"
+                                class="inline-flex items-center justify-center p-2 rounded-lg bg-blue-100 dark:bg-blue-950 text-blue-600 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 transition-all no-underline shrink-0"
+                                pTooltip="Volver a espacios" tooltipPosition="bottom">
+                                <i class="pi pi-arrow-left text-sm"></i>
+                            </a>
+                            <span class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">Espacio de Trabajo</span>
+                        </div>
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <div class="flex items-center gap-4 flex-1 min-w-0">
                                 <!-- Icono principal -->
                                 <div class="workspace-icon"
                                     [style.--ws-color]="ws.color || '#3b82f6'">
-                                    <i [class]="(ws.icon || 'pi pi-th-large') + ' text-2xl'"></i>
+                                    <i [class]="(ws.icon || 'pi pi-th-large') + ' text-lg'"></i>
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-1 tracking-tight">{{ ws.name }}</h1>
+                                    <h1 class="text-lg font-semibold text-gray-900 dark:text-white mb-0 tracking-tight">{{ ws.name }}</h1>
                                     @if (ws.description) {
-                                        <p class="text-sm text-gray-500 dark:text-gray-400">{{ ws.description }}</p>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-0 leading-tight">{{ ws.description }}</p>
                                     }
-                                    <div class="flex items-center gap-2 mt-3 flex-wrap">
+                                    <div class="flex items-center gap-2 mt-1.5 flex-wrap">
                                         <span class="ws-badge ws-badge-forms">
                                             <i class="pi pi-file-edit"></i>
                                             {{ getFormCount(ws) }} formularios
@@ -165,13 +176,6 @@ interface TabItem { label: string; icon: string; route: string; }
                         </div>
                     </div>
                 </div>
-                <!-- Volver al listado -->
-                <a [routerLink]="['/admin/workspaces']"
-                    class="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg border border-gray-200 dark:border-surface-600 bg-white dark:bg-surface-900 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-surface-800 hover:border-gray-300 dark:hover:border-surface-500 transition-all no-underline text-sm font-medium shadow-sm"
-                    title="Volver al listado de espacios">
-                    <i class="pi pi-arrow-left"></i>
-                    Volver al listado
-                </a>
             </div>
         } @else if (isLoading()) {
             <div class="bg-white dark:bg-surface-900 rounded-xl border border-gray-200 dark:border-surface-700 p-5 mb-5 animate-pulse">
@@ -185,21 +189,28 @@ interface TabItem { label: string; icon: string; route: string; }
             </div>
         }
 
-        <!-- Tab navigation -->
-        <div class="bg-white dark:bg-surface-900 rounded-xl border border-gray-100 dark:border-surface-700 mb-5 overflow-hidden shadow-sm">
-            <nav class="flex overflow-x-auto">
-                @for (tab of tabs; track tab.route) {
-                    <a [routerLink]="tab.route" routerLinkActive="active-tab"
-                        class="flex items-center gap-2 px-5 py-3.5 text-sm font-medium text-gray-500 dark:text-gray-400 border-b-2 border-transparent hover:text-blue-600 hover:border-blue-300 transition-all duration-150 whitespace-nowrap no-underline">
-                        <i class="{{ tab.icon }} text-sm"></i>
-                        {{ tab.label }}
-                    </a>
-                }
-            </nav>
-        </div>
-
         <!-- Tab content -->
-        <router-outlet />
+        <div class="bg-white dark:bg-surface-900 rounded-xl border border-gray-100 dark:border-surface-700 mb-5 overflow-hidden shadow-sm">
+            <p-tabs [value]="activeTabValue()" (valueChange)="onTabChange($event)" class="custom-tabs">
+                <p-tablist class="border-b border-gray-200 dark:border-surface-700 px-6">
+                    @for (tab of tabs; track tab.route) {
+                        <p-tab [value]="tab.route" class="relative">
+                            <div class="flex items-center gap-2">
+                                <i [class]="tab.icon + ' text-lg'"></i>
+                                <span class="font-medium">{{ tab.label }}</span>
+                            </div>
+                        </p-tab>
+                    }
+                </p-tablist>
+                <p-tabpanels class="min-h-96">
+                    <p-tabpanel [value]="activeTabValue()" class="p-0">
+                        <div class="p-6">
+                            <router-outlet />
+                        </div>
+                    </p-tabpanel>
+                </p-tabpanels>
+            </p-tabs>
+        </div>
 
         <!-- ── Edit Workspace Dialog ─────────────────────────────── -->
         <p-dialog
@@ -315,8 +326,19 @@ export class WorkspaceDetailComponent implements OnInit {
     private readonly breadcrumbSvc = inject(BreadcrumbService);
     private readonly confirmationService = inject(ConfirmationService);
     private readonly router = inject(Router);
+    private readonly destroyRef = inject(DestroyRef);
+    private readonly _routeUrl = signal(this.router.url);
 
     readonly workspace = this.workspaceService.selected;
+    readonly activeTabValue = computed(() => {
+        const url = this._routeUrl();
+        const id = this.workspaceId();
+        if (!id) return 'forms';
+        const base = `/admin/workspaces/${id}/`;
+        if (!url.startsWith(base)) return 'forms';
+        const rest = url.slice(base.length).split('/')[0] || '';
+        return ['forms', 'domain-values', 'members'].includes(rest) ? rest : 'forms';
+    });
     readonly isLoading = this.workspaceService.loading;
     readonly isSaving = signal(false);
     editDialogVisible = false;
@@ -344,6 +366,12 @@ export class WorkspaceDetailComponent implements OnInit {
         { label: 'Miembros',           icon: 'pi pi-users',    route: 'members'       }
     ];
 
+    onTabChange(route: string | number | undefined): void {
+        const id = this.workspaceId();
+        const path = typeof route === 'string' ? route : 'forms';
+        if (id && path) this.router.navigate(['/admin/workspaces', id, path]);
+    }
+
     constructor() {
         effect(() => {
             const ws = this.workspace();
@@ -357,6 +385,11 @@ export class WorkspaceDetailComponent implements OnInit {
     ngOnInit(): void {
         const id = this.workspaceId();
         if (id) this.workspaceService.getById(id).subscribe();
+
+        this.router.events.pipe(
+            filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(() => this._routeUrl.set(this.router.url));
     }
 
     openEdit(ws: Workspace): void {
@@ -415,7 +448,7 @@ export class WorkspaceDetailComponent implements OnInit {
 
     confirmDisable(ws: Workspace): void {
         this.confirmationService.confirm({
-            message: `Al deshabilitar el Espacio de Trabajo "${ws.name}", este y sus formularios no se mostrarán a los usuarios finales. Los datos existentes se conservan y podés reactivarlo en cualquier momento. ¿Desea continuar?`,
+            message: `¿Deshabilitar "${ws.name}"? No se mostrará a los usuarios. Los datos se conservan y podés reactivarlo en cualquier momento.`,
             header: 'Deshabilitar Espacio de Trabajo',
             icon: 'pi pi-exclamation-triangle',
             acceptButtonStyleClass: 'p-button-warning',

@@ -199,11 +199,12 @@ interface TypeColors { icon: string; bg: string; }
             </div>
         } @else {
 
-        <!-- ── Volver al listado ──────────────────────────────────── -->
+        <!-- ── Volver a formularios (principal) ───────────────────── -->
         <a [routerLink]="['/admin/workspaces', workspaceId(), 'forms']"
-            class="back-to-list-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-surface-600 bg-white dark:bg-surface-900 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-surface-800 hover:border-gray-300 dark:hover:border-surface-500 transition-all no-underline text-sm font-medium shadow-sm mb-6">
-            <i class="pi pi-arrow-left text-sm"></i>
-            Volver al listado
+            class="back-to-list-btn inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-surface-600 bg-white dark:bg-surface-900 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-surface-800 hover:border-gray-300 dark:hover:border-surface-500 transition-all no-underline text-sm font-semibold shadow-sm mb-6"
+            title="Volver a la lista de formularios">
+            <i class="pi pi-arrow-left"></i>
+            Volver a formularios
         </a>
 
         <!-- ── Form Header Card ───────────────────────────────────── -->

@@ -100,56 +100,54 @@ type FilterTab = 'all' | 'draft' | 'published';
         }
     `],
     template: `
-        <!-- Header (Apollo-style, como dashboard) -->
-        <div class="mb-8">
+        <!-- Card única: header + filtros -->
+        <div class="mb-6">
             <div class="dashboard-welcome-card">
-                <div class="p-6">
-                    <div class="flex items-center justify-between gap-4 flex-wrap">
-                        <div class="flex items-center gap-5">
+                <div class="p-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div class="flex items-center gap-4">
                             <div class="dashboard-welcome-icon">
                                 <i class="pi pi-file text-xl"></i>
                             </div>
                             <div>
-                                <h2 class="text-xl font-semibold text-gray-900 dark:text-white tracking-tight mb-0.5">Formularios</h2>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">
-                                    Administrá los formularios de este workspace
-                                </p>
+                                <h2 class="text-lg font-semibold text-gray-900 dark:text-white tracking-tight mb-0">Formularios</h2>
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-0">Administrá los formularios de este workspace</p>
                             </div>
                         </div>
                         <button
-                            class="flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-md hover:shadow-lg transition-all"
+                            class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold rounded-lg shadow-sm transition-all shrink-0"
                             (click)="openCreate()">
                             <i class="pi pi-plus"></i>
                             Nuevo Formulario
                         </button>
                     </div>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-3 mt-4 pt-4 border-t border-gray-200 dark:border-surface-700">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <button class="filter-tab" [class.active]="activeTab() === 'all'"
+                                (click)="activeTab.set('all')">
+                                Todos ({{ allForms().length }})
+                            </button>
+                            <button class="filter-tab" [class.active]="activeTab() === 'draft'"
+                                (click)="activeTab.set('draft')">
+                                Borradores ({{ draftForms().length }})
+                            </button>
+                            <button class="filter-tab" [class.active]="activeTab() === 'published'"
+                                (click)="activeTab.set('published')">
+                                Publicados ({{ publishedForms().length }})
+                            </button>
+                        </div>
+                        <div class="flex-1 min-w-0 sm:max-w-xs relative">
+                            <span class="absolute left-0 inset-y-0 flex items-center pl-3 pointer-events-none z-10">
+                                <i class="pi pi-search text-gray-400 text-sm"></i>
+                            </span>
+                            <input type="text" pInputText
+                                class="w-full pl-10 text-sm"
+                                placeholder="Buscar formularios..."
+                                [ngModel]="searchQuery()"
+                                (ngModelChange)="searchQuery.set($event)" />
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Filtros y búsqueda (compacto) -->
-        <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
-            <div class="flex items-center gap-2 flex-wrap">
-            <button class="filter-tab" [class.active]="activeTab() === 'all'"
-                (click)="activeTab.set('all')">
-                Todos ({{ allForms().length }})
-            </button>
-            <button class="filter-tab" [class.active]="activeTab() === 'draft'"
-                (click)="activeTab.set('draft')">
-                Borradores ({{ draftForms().length }})
-            </button>
-            <button class="filter-tab" [class.active]="activeTab() === 'published'"
-                (click)="activeTab.set('published')">
-                Publicados ({{ publishedForms().length }})
-            </button>
-            </div>
-            <div class="flex-1 min-w-0 sm:max-w-xs relative">
-                <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
-                <input type="text" pInputText
-                    class="w-full pl-9 text-sm"
-                    placeholder="Buscar formularios..."
-                    [ngModel]="searchQuery()"
-                    (ngModelChange)="searchQuery.set($event)" />
             </div>
         </div>
 

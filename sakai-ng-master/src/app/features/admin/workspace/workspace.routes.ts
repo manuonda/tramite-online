@@ -17,6 +17,7 @@ export const WORKSPACE_ROUTES: Routes = [
         loadComponent: () => import('./pages/workspace-detail/workspace-detail.component').then(m => m.WorkspaceDetailComponent),
         children: [
             { path: '', redirectTo: 'forms', pathMatch: 'full' },
+            { path: 'submissions', redirectTo: 'forms', pathMatch: 'full' },
             {
                 path: 'forms',
                 loadChildren: () => import('./features/form-builder/form-builder.routes').then(m => m.FORM_BUILDER_ROUTES),
@@ -34,12 +35,6 @@ export const WORKSPACE_ROUTES: Routes = [
                 loadChildren: () => import('./features/members/members.routes').then(m => m.MEMBERS_ROUTES),
                 canActivate: [permissionGuard],
                 data: { permissions: ['member:view'] }
-            },
-            {
-                path: 'submissions',
-                loadChildren: () => import('./features/submissions/submissions.routes').then(m => m.SUBMISSIONS_ROUTES),
-                canActivate: [permissionGuard],
-                data: { permissions: ['submission:view'] }
             }
         ]
     }

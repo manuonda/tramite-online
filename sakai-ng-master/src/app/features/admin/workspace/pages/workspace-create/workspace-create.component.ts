@@ -130,7 +130,7 @@ export class WorkspaceCreateComponent {
     readonly home: MenuItem = { icon: 'pi pi-home', routerLink: '/admin/dashboard' };
     readonly breadcrumbItems: MenuItem[] = [
         { label: 'Admin', routerLink: '/admin/dashboard' },
-        { label: 'Workspaces', routerLink: '/admin/workspaces' },
+        { label: 'Espacios de Trabajo', routerLink: '/admin/workspaces' },
         { label: 'Nuevo Workspace' }
     ];
 

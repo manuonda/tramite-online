@@ -107,6 +107,9 @@ export interface Section {
 
 export type FormStatus = 'draft' | 'published';
 
+/** Wizard: pasos horizontales. Vertical: menú lateral + contenido */
+export type FormLayoutMode = 'wizard' | 'vertical';
+
 export interface Form {
     id: string;
     workspaceId: string;
@@ -114,6 +117,14 @@ export interface Form {
     description?: string;
     status: FormStatus;
     sections: Section[];
+    /** Cómo se muestra el formulario al usuario */
+    layoutMode?: FormLayoutMode;
+    /** Si requiere pago antes de finalizar */
+    requiresPayment?: boolean;
+    /** Precio del trámite (cuando requiresPayment). */
+    paymentAmount?: number;
+    /** Vigencia hasta (ISO date). Si se define, el formulario no se muestra después. */
+    validUntil?: string;
     createdAt: string;
     updatedAt: string;
 }

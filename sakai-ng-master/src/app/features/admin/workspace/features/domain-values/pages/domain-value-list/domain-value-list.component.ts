@@ -52,7 +52,7 @@ import { FormBuilderService } from '../../../../features/form-builder/services/f
             letter-spacing: 0.05em;
             border-bottom: 1.5px solid #e5e7eb;
         }
-        :host-context(.dark) .value-table th { color: #9ca3af; border-bottom-color: var(--surface-700); }
+        :host-context(.app-dark) .value-table th { color: #9ca3af; border-bottom-color: var(--surface-700); }
         .value-table td {
             padding: 0.625rem 1rem;
             font-size: 0.875rem;
@@ -60,10 +60,10 @@ import { FormBuilderService } from '../../../../features/form-builder/services/f
             border-bottom: 1px solid #f3f4f6;
             vertical-align: middle;
         }
-        :host-context(.dark) .value-table td { color: #e5e7eb; border-bottom-color: var(--surface-800); }
+        :host-context(.app-dark) .value-table td { color: #e5e7eb; border-bottom-color: var(--surface-800); }
         .value-table tr:last-child td { border-bottom: none; }
         .value-table tr:hover td { background: #fafafa; }
-        :host-context(.dark) .value-table tr:hover td { background: var(--surface-800); }
+        :host-context(.app-dark) .value-table tr:hover td { background: var(--surface-800); }
         .inline-input-cell {
             border: 1.5px solid #3b82f6;
             border-radius: 0.375rem;
@@ -73,7 +73,7 @@ import { FormBuilderService } from '../../../../features/form-builder/services/f
             outline: none;
             background: white;
         }
-        :host-context(.dark) .inline-input-cell { background: var(--surface-900); color: white; }
+        :host-context(.app-dark) .inline-input-cell { background: var(--surface-900); color: white; }
         .new-row-input {
             border: 1.5px solid #e5e7eb;
             border-radius: 0.375rem;
@@ -84,10 +84,10 @@ import { FormBuilderService } from '../../../../features/form-builder/services/f
             background: white;
             transition: border-color 0.15s;
         }
-        :host-context(.dark) .new-row-input { background: var(--surface-900); color: white; border-color: var(--surface-600); }
+        :host-context(.app-dark) .new-row-input { background: var(--surface-900); color: white; border-color: var(--surface-600); }
         .new-row-input:focus { border-color: #3b82f6; }
         code.val { background: #f1f5f9; color: #475569; border-radius: 4px; padding: 0.125rem 0.5rem; font-size: 0.75rem; font-family: monospace; }
-        :host-context(.dark) code.val { background: var(--surface-800); color: #94a3b8; }
+        :host-context(.app-dark) code.val { background: var(--surface-800); color: #94a3b8; }
     `],
     template: `
         <!-- Header (Apollo-style) -->

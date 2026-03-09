@@ -57,9 +57,9 @@ type AnswerValue = string | number | boolean | string[] | null;
             font-size: 0.75rem; font-weight: 500;
         }
         .sub-badge-info { background: #eff6ff; color: #1d4ed8; }
-        :host-context(.dark) .sub-badge-info { background: rgba(59,130,246,0.2); color: #93c5fd; }
+        :host-context(.app-dark) .sub-badge-info { background: rgba(59,130,246,0.2); color: #93c5fd; }
         .sub-badge-muted { background: #f1f5f9; color: #64748b; }
-        :host-context(.dark) .sub-badge-muted { background: var(--surface-800); color: #94a3b8; }
+        :host-context(.app-dark) .sub-badge-muted { background: var(--surface-800); color: #94a3b8; }
         .sub-action-btn {
             display: inline-flex; align-items: center; gap: 0.375rem;
             padding: 0.35rem 0.75rem; border-radius: 8px;
@@ -70,9 +70,9 @@ type AnswerValue = string | number | boolean | string[] | null;
             background: white; color: #4b5563; border-color: #e5e7eb;
         }
         .sub-action-edit:hover { background: #f9fafb; border-color: #d1d5db; color: #1f2937; }
-        :host-context(.dark) .sub-action-edit { background: var(--surface-800); color: #e5e7eb; border-color: var(--surface-600); }
+        :host-context(.app-dark) .sub-action-edit { background: var(--surface-800); color: #e5e7eb; border-color: var(--surface-600); }
         .sub-action-status-inactive { background: white; color: #4b5563; border-color: #e5e7eb; }
-        :host-context(.dark) .sub-action-status-inactive { background: var(--surface-800); color: #e5e7eb; border-color: var(--surface-600); }
+        :host-context(.app-dark) .sub-action-status-inactive { background: var(--surface-800); color: #e5e7eb; border-color: var(--surface-600); }
         .edit-input {
             width: 100%; padding: 10px 14px;
             border: 1.5px solid #e5e7eb; border-radius: 8px;
@@ -81,7 +81,7 @@ type AnswerValue = string | number | boolean | string[] | null;
             font-family: inherit;
         }
         .edit-input:focus { border-color: #8b5cf6; box-shadow: 0 0 0 3px rgba(139,92,246,0.15); }
-        :host-context(.dark) .edit-input {
+        :host-context(.app-dark) .edit-input {
             background: var(--surface-800); border-color: var(--surface-600); color: #f1f5f9;
         }
         .edit-select {
@@ -105,7 +105,7 @@ type AnswerValue = string | number | boolean | string[] | null;
             border: 1.5px solid #e5e7eb;
             background: white;
         }
-        :host-context(.dark) .section-card {
+        :host-context(.app-dark) .section-card {
             background: var(--surface-900);
             border-color: var(--surface-700);
         }
@@ -116,7 +116,7 @@ type AnswerValue = string | number | boolean | string[] | null;
             background: transparent; cursor: pointer; color: #6b7280;
         }
         .action-btn:hover:not(:disabled) { background: #f3f4f6; color: #374151; }
-        :host-context(.dark) .action-btn:hover:not(:disabled) { background: var(--surface-700); color: #e5e7eb; }
+        :host-context(.app-dark) .action-btn:hover:not(:disabled) { background: var(--surface-700); color: #e5e7eb; }
         .type-badge {
             display: inline-flex; align-items: center;
             padding: 0.175rem 0.6rem;
@@ -125,14 +125,14 @@ type AnswerValue = string | number | boolean | string[] | null;
             background: #f1f5f9; color: #64748b;
             white-space: nowrap;
         }
-        :host-context(.dark) .type-badge { background: var(--surface-800); color: #94a3b8; }
+        :host-context(.app-dark) .type-badge { background: var(--surface-800); color: #94a3b8; }
         .required-badge {
             display: inline-flex; align-items: center;
             padding: 0.175rem 0.6rem; border-radius: 9999px;
             font-size: 0.7rem; font-weight: 500;
             background: #fef2f2; color: #dc2626;
         }
-        :host-context(.dark) .required-badge { background: rgba(220,38,38,0.1); color: #f87171; }
+        :host-context(.app-dark) .required-badge { background: rgba(220,38,38,0.1); color: #f87171; }
         .item-row {
             display: grid;
             grid-template-columns: minmax(180px, 0.45fr) 1fr;
@@ -147,7 +147,7 @@ type AnswerValue = string | number | boolean | string[] | null;
             border: 1.5px solid #e5e7eb;
             background: white;
         }
-        :host-context(.dark) .question-row {
+        :host-context(.app-dark) .question-row {
             background: var(--surface-900);
             border-color: var(--surface-700);
         }

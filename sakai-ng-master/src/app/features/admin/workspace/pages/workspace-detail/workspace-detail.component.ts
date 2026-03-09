@@ -53,11 +53,11 @@ interface TabItem { label: string; icon: string; route: string; }
         .ws-badge-forms {
             background: #eff6ff; color: #1d4ed8;
         }
-        :host-context(.dark) .ws-badge-forms { background: rgba(59,130,246,0.2); color: #93c5fd; }
+        :host-context(.app-dark) .ws-badge-forms { background: rgba(59,130,246,0.2); color: #93c5fd; }
         .ws-badge-members {
             background: #f5f3ff; color: #5b21b6;
         }
-        :host-context(.dark) .ws-badge-members { background: rgba(139,92,246,0.2); color: #c4b5fd; }
+        :host-context(.app-dark) .ws-badge-members { background: rgba(139,92,246,0.2); color: #c4b5fd; }
         .ws-action-btn {
             display: inline-flex; align-items: center; gap: 0.375rem;
             padding: 0.35rem 0.75rem; border-radius: 8px;
@@ -68,23 +68,23 @@ interface TabItem { label: string; icon: string; route: string; }
             background: white; color: #4b5563; border-color: #e5e7eb;
         }
         .ws-action-edit:hover { background: #f9fafb; border-color: #d1d5db; color: #1f2937; }
-        :host-context(.dark) .ws-action-edit { background: var(--surface-800); color: #e5e7eb; border-color: var(--surface-600); }
-        :host-context(.dark) .ws-action-edit:hover { background: var(--surface-700); }
+        :host-context(.app-dark) .ws-action-edit { background: var(--surface-800); color: #e5e7eb; border-color: var(--surface-600); }
+        :host-context(.app-dark) .ws-action-edit:hover { background: var(--surface-700); }
         .ws-action-disable {
             background: #fffbeb; color: #b45309; border-color: #fcd34d;
         }
         .ws-action-disable:hover { background: #fef3c7; color: #92400e; }
-        :host-context(.dark) .ws-action-disable { background: rgba(245,158,11,0.15); color: #fbbf24; border-color: rgba(245,158,11,0.4); }
+        :host-context(.app-dark) .ws-action-disable { background: rgba(245,158,11,0.15); color: #fbbf24; border-color: rgba(245,158,11,0.4); }
         .ws-action-enable {
             background: #ecfdf5; color: #047857; border-color: #6ee7b7;
         }
         .ws-action-enable:hover { background: #d1fae5; color: #065f46; }
-        :host-context(.dark) .ws-action-enable { background: rgba(16,185,129,0.15); color: #34d399; border-color: rgba(16,185,129,0.4); }
+        :host-context(.app-dark) .ws-action-enable { background: rgba(16,185,129,0.15); color: #34d399; border-color: rgba(16,185,129,0.4); }
         .ws-action-delete {
             background: #fef2f2; color: #b91c1c; border-color: #fca5a5;
         }
         .ws-action-delete:hover { background: #fee2e2; color: #991b1b; }
-        :host-context(.dark) .ws-action-delete { background: rgba(220,38,38,0.15); color: #f87171; border-color: rgba(220,38,38,0.4); }
+        :host-context(.app-dark) .ws-action-delete { background: rgba(220,38,38,0.15); color: #f87171; border-color: rgba(220,38,38,0.4); }
         :host ::ng-deep .custom-tabs .p-tablist .p-tab[data-p-active="true"] {
             color: #3b82f6;
             border-bottom-color: #3b82f6;
@@ -189,10 +189,11 @@ interface TabItem { label: string; icon: string; route: string; }
             </div>
         }
 
-        <!-- Tab content -->
+        <!-- Contenido: tabs visibles solo cuando NO se edita un formulario -->
         <div class="bg-white dark:bg-surface-900 rounded-xl border border-gray-100 dark:border-surface-700 mb-5 overflow-hidden shadow-sm">
             <p-tabs [value]="activeTabValue()" (valueChange)="onTabChange($event)" class="custom-tabs">
-                <p-tablist class="border-b border-gray-200 dark:border-surface-700 px-6">
+                <p-tablist class="border-b border-gray-200 dark:border-surface-700 px-6"
+                    [style.display]="isEditingForm() ? 'none' : 'flex'">
                     @for (tab of tabs; track tab.route) {
                         <p-tab [value]="tab.route" class="relative">
                             <div class="flex items-center gap-2">
@@ -204,7 +205,7 @@ interface TabItem { label: string; icon: string; route: string; }
                 </p-tablist>
                 <p-tabpanels class="min-h-96">
                     <p-tabpanel [value]="activeTabValue()" class="p-0">
-                        <div class="p-6">
+                        <div [class.p-6]="!isEditingForm()" [class.p-0]="isEditingForm()">
                             <router-outlet />
                         </div>
                     </p-tabpanel>
@@ -339,6 +340,17 @@ export class WorkspaceDetailComponent implements OnInit {
         const rest = url.slice(base.length).split('/')[0] || '';
         return ['forms', 'domain-values', 'members'].includes(rest) ? rest : 'forms';
     });
+
+    /** true cuando estamos editando o previsualizando un formulario (ocultar tabs) */
+    readonly isEditingForm = computed(() => {
+        const url = this._routeUrl().split('?')[0];
+        const id = this.workspaceId();
+        if (!id) return false;
+        const prefix = `/admin/workspaces/${id}/forms/`;
+        if (!url.startsWith(prefix)) return false;
+        const afterForms = url.slice(prefix.length);
+        return afterForms.length > 0; // forms/xyz o forms/xyz/preview
+    });
     readonly isLoading = this.workspaceService.loading;
     readonly isSaving = signal(false);
     editDialogVisible = false;
@@ -363,7 +375,7 @@ export class WorkspaceDetailComponent implements OnInit {
     readonly tabs: TabItem[] = [
         { label: 'Formularios',        icon: 'pi pi-file',     route: 'forms'         },
         { label: 'Valores de Dominio', icon: 'pi pi-database', route: 'domain-values' },
-        { label: 'Miembros',           icon: 'pi pi-users',    route: 'members'       }
+        { label: 'Miembros',           icon: 'pi pi-users',    route: 'members'       },
     ];
 
     onTabChange(route: string | number | undefined): void {

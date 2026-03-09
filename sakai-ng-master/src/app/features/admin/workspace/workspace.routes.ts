@@ -35,7 +35,7 @@ export const WORKSPACE_ROUTES: Routes = [
                 loadChildren: () => import('./features/members/members.routes').then(m => m.MEMBERS_ROUTES),
                 canActivate: [permissionGuard],
                 data: { permissions: ['member:view'] }
-            }
+            },
         ]
     }
 ];

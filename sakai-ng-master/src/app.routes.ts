@@ -36,6 +36,11 @@ export const appRoutes: Routes = [
             {
                 path: 'submissions',
                 loadChildren: () => import('@features/admin/submissions/submissions.routes').then(m => m.SUBMISSIONS_ROUTES)
+            },
+            {
+                path: 'pagos',
+                loadComponent: () => import('@features/admin/workspace/features/payment-config/pages/payment-config.component')
+                    .then(m => m.PaymentConfigComponent)
             }
         ]
     },

@@ -36,7 +36,7 @@ export class AppMenu {
                 label: 'Tramites',
                 items: [
                     {
-                        label: 'Workspaces',
+                        label: 'Espacios de Trabajo',
                         icon: 'pi pi-fw pi-th-large',
                         routerLink: ['/admin/workspaces']
                     }
@@ -49,6 +49,16 @@ export class AppMenu {
                         label: 'Todas las Respuestas',
                         icon: 'pi pi-fw pi-inbox',
                         routerLink: ['/admin/submissions']
+                    }
+                ]
+            },
+            {
+                label: 'Pagos',
+                items: [
+                    {
+                        label: 'Configuración de Pagos',
+                        icon: 'pi pi-fw pi-credit-card',
+                        routerLink: ['/admin/pagos']
                     }
                 ]
             },

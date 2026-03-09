@@ -35,6 +35,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+}
+
+:root[class*='app-dark'] .sidebar-header {
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
 }
 
 .app-logo {

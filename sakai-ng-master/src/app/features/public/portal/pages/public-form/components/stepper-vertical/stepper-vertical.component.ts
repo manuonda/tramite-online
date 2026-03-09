@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { Section } from '@features/admin/workspace/features/form-builder/models/form-builder.models';
 import { AnswerChangeEvent, AnswerMap } from '../../../../models/portal.model';
 import { QuestionRendererComponent } from '../question-renderer/question-renderer.component';
@@ -6,7 +7,7 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
 @Component({
     selector: 'app-stepper-vertical',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [QuestionRendererComponent],
+    imports: [QuestionRendererComponent, RouterModule],
     styles: [`
         :host { display: block; }
         .sidebar { width: 220px; min-width: 220px; }
@@ -34,6 +35,13 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
         .nav-next { color: white; }
         .nav-next:hover { filter: brightness(0.9); }
         .nav-next:disabled { opacity: 0.6; cursor: not-allowed; }
+        .nav-home {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 10px 22px; border-radius: 10px; font-size: 0.9375rem;
+            font-weight: 600; text-decoration: none; transition: all 0.15s;
+            background: white; border: 1.5px solid #e5e7eb; color: #374151;
+        }
+        .nav-home:hover { border-color: #9ca3af; background: #f9fafb; }
         @media (max-width: 640px) {
             .sidebar { width: 100%; min-width: 0; }
             .layout { flex-direction: column; }
@@ -94,8 +102,15 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
                     }
                 </div>
 
-                <!-- Questions -->
+                <!-- Questions / Payment placeholder -->
                 <div class="space-y-7">
+                    @if (currentSection().id === '__payment__') {
+                        <div class="rounded-xl border-2 border-dashed border-amber-200 bg-amber-50 p-8 text-center">
+                            <i class="pi pi-credit-card text-3xl text-amber-500 mb-3 block"></i>
+                            <p class="text-sm font-semibold text-amber-800">Pago</p>
+                            <p class="text-xs text-amber-600 mt-1">Integración de pago pendiente (MercadoPago, Stripe, etc.)</p>
+                        </div>
+                    } @else {
                     @for (q of sortedQuestions(); track q.id) {
                         <app-question-renderer
                             [question]="q"
@@ -104,16 +119,25 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
                             [errorMsg]="errors()[q.id] ?? ''"
                             (valueChange)="answerChange.emit({ questionId: q.id, value: $event })" />
                     }
+                    }
                 </div>
 
                 <!-- Navigation -->
                 <div class="flex items-center justify-between mt-10 pt-6 border-t border-gray-100">
-                    <button type="button" class="nav-btn nav-prev"
-                        [style.visibility]="isFirst() ? 'hidden' : 'visible'"
-                        (click)="prev.emit()">
-                        <i class="pi pi-chevron-left text-sm"></i>
-                        Anterior
-                    </button>
+                    <div class="flex items-center gap-2">
+                        @if (isFirst()) {
+                            <a [routerLink]="firstStepLink()" class="nav-home">
+                                <i [class]="firstStepIcon() + ' text-sm'"></i>
+                                {{ firstStepLabel() }}
+                            </a>
+                        } @else {
+                            <button type="button" class="nav-btn nav-prev"
+                                (click)="prev.emit()">
+                                <i class="pi pi-chevron-left text-sm"></i>
+                                Anterior
+                            </button>
+                        }
+                    </div>
 
                     @if (isLast()) {
                         <button type="button" class="nav-btn nav-next"
@@ -148,6 +172,10 @@ export class StepperVerticalComponent {
     readonly errors       = input<Partial<Record<string, string>>>({});
     readonly accentColor  = input<string>('#3b82f6');
     readonly isSubmitting = input(false);
+    /** Enlace cuando es el primer paso (ej. /home o editor en vista previa) */
+    readonly firstStepLink = input<string>('/home');
+    readonly firstStepLabel = input<string>('Inicio');
+    readonly firstStepIcon  = input<string>('pi pi-home');
 
     readonly answerChange = output<AnswerChangeEvent>();
     readonly next         = output<void>();

@@ -5,10 +5,10 @@ import {
 import { Router, RouterModule } from '@angular/router';
 import { WorkspaceService } from '@features/admin/workspace/services/workspace.service';
 import { PublicFormService } from '../../services/public-form.service';
-import {
-    AnswerChangeEvent, AnswerMap, FormLayoutMode,
-    HORIZONTAL_LAYOUT_MAX_SECTIONS
-} from '../../models/portal.model';
+import { AnswerChangeEvent, AnswerMap, FormLayoutMode } from '../../models/portal.model';
+import { Section } from '@features/admin/workspace/features/form-builder/models/form-builder.models';
+
+const PAYMENT_SECTION_ID = '__payment__';
 import { StepperHorizontalComponent } from './components/stepper-horizontal/stepper-horizontal.component';
 import { StepperVerticalComponent } from './components/stepper-vertical/stepper-vertical.component';
 
@@ -87,7 +87,7 @@ import { StepperVerticalComponent } from './components/stepper-vertical/stepper-
                         @if (layoutMode() === 'horizontal') {
                             <div class="p-8">
                                 <app-stepper-horizontal
-                                    [sections]="sections()"
+                                    [sections]="sectionsWithPayment()"
                                     [currentIndex]="currentIndex()"
                                     [answers]="answers()"
                                     [errors]="errors()"
@@ -100,7 +100,7 @@ import { StepperVerticalComponent } from './components/stepper-vertical/stepper-
                             </div>
                         } @else {
                             <app-stepper-vertical
-                                [sections]="sections()"
+                                [sections]="sectionsWithPayment()"
                                 [currentIndex]="currentIndex()"
                                 [answers]="answers()"
                                 [errors]="errors()"
@@ -137,9 +137,27 @@ export class PublicFormComponent implements OnInit {
         [...(this.form()?.sections ?? [])].sort((a, b) => a.order - b.order)
     );
 
-    readonly layoutMode = computed<FormLayoutMode>(() =>
-        this.sections().length <= HORIZONTAL_LAYOUT_MAX_SECTIONS ? 'horizontal' : 'vertical'
-    );
+    readonly sectionsWithPayment = computed(() => {
+        const sections = this.sections();
+        const f = this.form();
+        if (!f?.requiresPayment) return sections;
+        const paymentSection: Section = {
+            id: PAYMENT_SECTION_ID,
+            formId: f.id,
+            title: 'Pago',
+            description: 'Integración de pago pendiente',
+            questions: [],
+            order: sections.length
+        };
+        return [...sections, paymentSection];
+    });
+
+    readonly layoutMode = computed<FormLayoutMode>(() => {
+        const mode = this.form()?.layoutMode;
+        if (mode === 'vertical') return 'vertical';
+        if (mode === 'wizard') return 'horizontal';
+        return this.sectionsWithPayment().length <= 3 ? 'horizontal' : 'vertical';
+    });
 
     readonly currentIndex = signal(0);
     readonly answers      = signal<AnswerMap>({});
@@ -147,7 +165,7 @@ export class PublicFormComponent implements OnInit {
     readonly isSubmitting = signal(false);
 
     readonly progressPct = computed(() => {
-        const total = this.sections().length;
+        const total = this.sectionsWithPayment().length;
         return total === 0 ? 0 : Math.round(((this.currentIndex() + 1) / total) * 100);
     });
 
@@ -207,7 +225,7 @@ export class PublicFormComponent implements OnInit {
     }
 
     private validateCurrentSection(): boolean {
-        const section = this.sections()[this.currentIndex()];
+        const section = this.sectionsWithPayment()[this.currentIndex()];
         if (!section) return true;
 
         const errs: Partial<Record<string, string>> = {};

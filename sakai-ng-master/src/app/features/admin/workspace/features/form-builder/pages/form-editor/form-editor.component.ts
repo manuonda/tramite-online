@@ -1,14 +1,16 @@
 import { ChangeDetectionStrategy, Component, inject, input, OnInit, signal, computed } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import {
-    Form, Section, Question, QuestionType,
+    Form, Section, Question, QuestionType, FormLayoutMode, FormStatus,
     QUESTION_TYPE_CONFIG, getDefaultConfig, QuestionConfig
 } from '../../models/form-builder.models';
 import { FormBuilderService } from '../../services/form-builder.service';
@@ -18,44 +20,35 @@ interface TypeColors { icon: string; bg: string; }
 @Component({
     selector: 'app-form-editor',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    providers: [MessageService],
+    providers: [MessageService, ConfirmationService],
     imports: [
         RouterModule, FormsModule, ReactiveFormsModule,
-        ButtonModule, ToastModule, TooltipModule,
+        ButtonModule, DialogModule, ConfirmDialogModule, ToastModule, TooltipModule,
         InputTextModule, TextareaModule
     ],
     styles: [`
         .section-card {
             border-radius: 0.75rem;
-            border: 1.5px solid #e5e7eb;
-            background: white;
-        }
-        :host-context(.dark) .section-card {
-            background: var(--surface-900);
-            border-color: var(--surface-700);
+            border: 1.5px solid var(--surface-border);
+            background: var(--surface-card);
         }
         .question-row {
             border-radius: 0.5rem;
-            border: 1.5px solid #e5e7eb;
-            background: white;
-        }
-        :host-context(.dark) .question-row {
-            background: var(--surface-900);
-            border-color: var(--surface-700);
+            border: 1.5px solid var(--surface-border);
+            background: var(--surface-card);
         }
         .question-row.config-open {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 1px rgba(59,130,246,0.15);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-color) 20%, transparent);
         }
         .type-badge {
             display: inline-flex; align-items: center;
             padding: 0.175rem 0.6rem;
             border-radius: 9999px;
             font-size: 0.7rem; font-weight: 500;
-            background: #f1f5f9; color: #64748b;
+            background: var(--surface-100); color: var(--text-color-secondary);
             white-space: nowrap;
         }
-        :host-context(.dark) .type-badge { background: var(--surface-800); color: #94a3b8; }
         .required-badge {
             display: inline-flex; align-items: center;
             padding: 0.175rem 0.6rem;
@@ -63,50 +56,50 @@ interface TypeColors { icon: string; bg: string; }
             font-size: 0.7rem; font-weight: 500;
             background: #fef2f2; color: #dc2626;
         }
-        :host-context(.dark) .required-badge { background: rgba(220,38,38,0.1); color: #f87171; }
+        :host-context(.app-dark) .required-badge { background: rgba(220,38,38,0.15); color: #fca5a5; }
         .add-question-btn {
             width: 100%; padding: 0.5rem 1rem;
-            border: 1.5px solid #e2e8f0; border-radius: 8px;
-            color: #64748b; font-size: 0.8125rem; font-weight: 500;
-            background: #f8fafc; cursor: pointer;
+            border: 1.5px solid var(--surface-border); border-radius: 8px;
+            color: var(--text-color-secondary); font-size: 0.8125rem; font-weight: 500;
+            background: var(--surface-50); cursor: pointer;
             transition: all 0.14s;
             display: flex; align-items: center; justify-content: center; gap: 0.5rem;
         }
         .add-question-btn:hover {
-            border-color: #93c5fd;
-            color: #2563eb;
-            background: #eff6ff;
-            box-shadow: 0 1px 4px rgba(59,130,246,0.08);
+            border-color: var(--primary-300);
+            color: var(--primary-color);
+            background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+            box-shadow: 0 1px 4px color-mix(in srgb, var(--primary-color) 15%, transparent);
         }
         .add-question-btn .btn-icon {
             width: 20px; height: 20px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; background: #e2e8f0; color: #64748b;
+            border-radius: 50%; background: var(--surface-200); color: var(--text-color-secondary);
             transition: all 0.14s; font-size: 0.65rem;
         }
         .add-question-btn:hover .btn-icon {
-            background: #dbeafe; color: #2563eb;
+            background: color-mix(in srgb, var(--primary-color) 20%, transparent); color: var(--primary-color);
         }
         .add-section-btn {
             width: 100%; padding: 0.625rem 1rem;
-            border: 1.5px dashed #cbd5e1; border-radius: 0.75rem;
-            color: #64748b; font-size: 0.8125rem; font-weight: 500;
-            background: #f8fafc; cursor: pointer;
+            border: 1.5px dashed var(--surface-border); border-radius: 0.75rem;
+            color: var(--text-color-secondary); font-size: 0.8125rem; font-weight: 500;
+            background: var(--surface-50); cursor: pointer;
             transition: all 0.14s;
             display: flex; align-items: center; justify-content: center; gap: 0.5rem;
         }
         .add-section-btn:hover {
-            border-color: #3b82f6; border-style: solid;
-            color: #2563eb; background: #eff6ff;
+            border-color: var(--primary-color); border-style: solid;
+            color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 8%, transparent);
         }
         .add-section-btn .btn-icon {
             width: 22px; height: 22px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; background: #e2e8f0; color: #64748b;
+            border-radius: 50%; background: var(--surface-200); color: var(--text-color-secondary);
             transition: all 0.14s; font-size: 0.7rem;
         }
         .add-section-btn:hover .btn-icon {
-            background: #dbeafe; color: #2563eb;
+            background: color-mix(in srgb, var(--primary-color) 20%, transparent); color: var(--primary-color);
         }
         .inline-input {
             background: transparent; border: none; outline: none;
@@ -115,22 +108,19 @@ interface TypeColors { icon: string; bg: string; }
             transition: background 0.15s, box-shadow 0.15s;
         }
         .inline-input:hover {
-            background: rgba(59,130,246,0.06);
+            background: color-mix(in srgb, var(--primary-color) 6%, transparent);
         }
         .inline-input:focus {
-            background: rgba(59,130,246,0.08);
-            box-shadow: 0 0 0 2px rgba(59,130,246,0.2);
+            background: color-mix(in srgb, var(--primary-color) 8%, transparent);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary-color) 20%, transparent);
         }
-        .inline-input::placeholder { color: #9ca3af; }
-        :host-context(.dark) .inline-input:hover { background: rgba(59,130,246,0.1); }
-        :host-context(.dark) .inline-input:focus { background: rgba(59,130,246,0.12); }
+        .inline-input::placeholder { color: var(--text-color-secondary); }
         .form-stats-badge {
             display: inline-flex; align-items: center; gap: 0.375rem;
             padding: 0.25rem 0.625rem; border-radius: 9999px;
             font-size: 0.75rem; font-weight: 500;
-            background: #f1f5f9; color: #475569;
+            background: var(--surface-100); color: var(--text-color-secondary);
         }
-        :host-context(.dark) .form-stats-badge { background: var(--surface-800); color: #94a3b8; }
         .back-to-list-btn {
             display: inline-flex;
         }
@@ -141,11 +131,10 @@ interface TypeColors { icon: string; bg: string; }
             display: flex; align-items: flex-start; gap: 0.625rem;
             padding: 0.5rem 0.75rem; cursor: pointer; transition: background 0.1s;
         }
-        .type-option-item:hover { background: #f9fafb; }
-        :host-context(.dark) .type-option-item:hover { background: var(--surface-800); }
+        .type-option-item:hover { background: var(--surface-hover); }
         .type-dropdown-menu {
             position: absolute; z-index: 9999;
-            background: white; border: 1.5px solid #e5e7eb;
+            background: var(--surface-card); border: 1.5px solid var(--surface-border);
             border-radius: 0.625rem;
             box-shadow: 0 8px 24px rgba(0,0,0,0.12);
             min-width: 220px; max-height: 300px; overflow-y: auto; padding: 4px 0;
@@ -154,42 +143,95 @@ interface TypeColors { icon: string; bg: string; }
             min-width: 260px;
             max-height: 320px;
         }
-        :host-context(.dark) .type-dropdown-menu {
-            background: var(--surface-900); border-color: var(--surface-700);
-        }
         .action-btn {
             width: 32px; height: 32px;
             display: flex; align-items: center; justify-content: center;
             border-radius: 8px; transition: all 0.15s; border: none;
-            background: transparent; cursor: pointer; color: #6b7280;
+            background: transparent; cursor: pointer; color: var(--text-color-secondary);
         }
-        .action-btn:hover:not(:disabled) { background: #f3f4f6; color: #374151; }
+        .action-btn:hover:not(:disabled) { background: var(--surface-hover); color: var(--text-color); }
         .action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-        .action-btn.settings-active { background: #eff6ff; color: #2563eb; }
+        .action-btn.settings-active { background: color-mix(in srgb, var(--primary-color) 12%, transparent); color: var(--primary-color); }
         .action-btn.danger { color: #dc2626; }
         .action-btn.danger:hover:not(:disabled) { background: #fef2f2; color: #b91c1c; }
         .action-btn-group { display: flex; align-items: center; gap: 2px; }
         .action-btn-sep {
-            width: 1px; height: 18px; background: #e5e7eb;
+            width: 1px; height: 18px; background: var(--surface-border);
             margin: 0 4px; flex-shrink: 0; border-radius: 1px;
         }
-        :host-context(.dark) .action-btn:hover:not(:disabled) { background: var(--surface-700); color: #e5e7eb; }
-        :host-context(.dark) .action-btn.settings-active { background: rgba(59,130,246,0.2); color: #60a5fa; }
-        :host-context(.dark) .action-btn.danger { color: #f87171; }
-        :host-context(.dark) .action-btn.danger:hover:not(:disabled) { background: rgba(220,38,38,0.15); color: #fca5a5; }
-        :host-context(.dark) .action-btn-sep { background: var(--surface-600); }
+        :host-context(.app-dark) .action-btn.danger { color: #f87171; }
+        :host-context(.app-dark) .action-btn.danger:hover:not(:disabled) { background: rgba(220,38,38,0.15); color: #fca5a5; }
+        /* Config modal */
+        .config-modal-content { padding: 0.5rem 0; }
+        .config-section { margin-bottom: 1.25rem; }
+        .config-section:last-child { margin-bottom: 0; }
+        .config-section-label {
+            display: block; font-size: 0.75rem; font-weight: 600;
+            color: var(--text-color-secondary); text-transform: uppercase; letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        .config-toggle {
+            display: inline-flex; align-items: center; gap: 0.75rem;
+            cursor: pointer; user-select: none;
+        }
+        .config-toggle-track {
+            position: relative; width: 2.5rem; height: 1.25rem;
+            background: #e5e7eb; border-radius: 9999px; transition: background 0.2s;
+        }
+        .config-toggle-track.config-toggle-on { background: var(--primary-color); }
+        .config-toggle-track { position: relative; display: inline-block; }
+        .config-toggle-thumb {
+            position: absolute; left: 0.125rem; top: 0.125rem;
+            width: 1rem; height: 1rem; background: white; border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform 0.2s;
+        }
+        .config-toggle-thumb.config-toggle-on { transform: translateX(1.25rem); }
+        .config-toggle-label { font-size: 0.875rem; font-weight: 500; color: var(--text-color); }
+        .config-row { display: flex; align-items: center; }
+        .config-check { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.875rem; }
+        .config-input {
+            width: 100%; padding: 0.5rem 0.75rem; border-radius: 8px;
+            border: 1.5px solid var(--surface-border); font-size: 0.875rem; background: var(--surface-card);
+            color: var(--text-color); transition: border-color 0.15s; outline: none;
+        }
+        .config-input:focus { border-color: var(--primary-color); }
+        .config-input-readonly { background: var(--surface-50); color: var(--text-color-secondary); }
+        .config-hint { font-size: 0.75rem; color: var(--text-color-secondary); display: block; margin-top: 0.25rem; }
+        .config-link-row { display: flex; gap: 0.5rem; }
+        .config-link-row .config-input { flex: 1; }
+        .config-copy-btn {
+            padding: 0.5rem 0.75rem; border-radius: 8px;
+            border: 1.5px solid var(--surface-border); background: var(--surface-card); color: var(--text-color-secondary);
+            cursor: pointer; transition: all 0.15s;
+        }
+        .config-copy-btn:hover { border-color: var(--primary-color); color: var(--primary-color); background: color-mix(in srgb, var(--primary-color) 8%, transparent); }
+        .config-footer {
+            display: flex; justify-content: space-between; align-items: center;
+            width: 100%; gap: 1rem;
+        }
+        .config-footer-right { display: flex; gap: 0.5rem; }
+        .config-btn {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.875rem; font-weight: 600;
+            cursor: pointer; transition: all 0.15s; border: none;
+        }
+        .config-btn-secondary {
+            background: var(--surface-100); color: var(--text-color); border: 1px solid var(--surface-border);
+        }
+        .config-btn-secondary:hover { background: var(--surface-hover); }
+        .config-btn-primary { background: var(--primary-color); color: var(--primary-contrast); }
+        .config-btn-primary:hover { background: var(--primary-600); }
+        .config-btn-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .config-btn-danger:hover { background: #fee2e2; }
+        :host-context(.app-dark) .config-btn-danger { background: rgba(220,38,38,0.15); color: #f87171; border-color: rgba(220,38,38,0.3); }
         .config-panel-input {
             width: 100%; height: 36px; padding: 0 10px;
-            border: 1.5px solid #e5e7eb; border-radius: 8px;
-            font-size: 0.875rem; background: white; color: #111827;
+            border: 1.5px solid var(--surface-border); border-radius: 8px;
+            font-size: 0.875rem; background: var(--surface-card); color: var(--text-color);
             transition: border-color 0.15s; outline: none;
         }
-        .config-panel-input:focus { border-color: #3b82f6; }
-        :host-context(.dark) .config-panel-input {
-            background: var(--surface-800); border-color: var(--surface-600); color: #f1f5f9;
-        }
-        .config-label { font-size: 0.72rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; display: block; }
-        :host-context(.dark) .config-label { color: #94a3b8; }
+        .config-panel-input:focus { border-color: var(--primary-color); }
+        .config-label { font-size: 0.72rem; font-weight: 600; color: var(--text-color-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; display: block; }
     `],
     template: `
         @if (!form()) {
@@ -247,28 +289,17 @@ interface TypeColors { icon: string; bg: string; }
                     </div>
                 </div>
                 <div class="flex items-center gap-3 shrink-0">
-                    <!-- Status toggle -->
-                    <label class="flex items-center gap-2 cursor-pointer select-none">
-                        <div class="relative">
-                            <input type="checkbox" class="sr-only"
-                                [checked]="form()!.status === 'published'"
-                                (change)="toggleStatus()" />
-                            <div class="w-10 h-5 rounded-full transition-colors"
-                                [class]="form()!.status === 'published' ? 'bg-blue-600' : 'bg-gray-300'"></div>
-                            <div class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform"
-                                [class]="form()!.status === 'published' ? 'translate-x-5' : ''"></div>
-                        </div>
-                        <span class="text-sm font-medium"
-                            [class]="form()!.status === 'published' ? 'text-blue-600' : 'text-gray-500'">
-                            {{ form()!.status === 'published' ? 'Publicado' : 'Borrador' }}
-                        </span>
-                    </label>
-                    <!-- Preview button -->
                     <a [routerLink]="['/admin/workspaces', workspaceId(), 'forms', formId(), 'preview']"
-                        class="flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-surface-600 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors no-underline">
-                        <i class="pi pi-eye text-xs"></i>
+                        class="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 border border-gray-200 dark:border-surface-600 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors no-underline">
+                        <i class="pi pi-eye text-sm"></i>
                         Vista previa
                     </a>
+                    <button type="button"
+                        class="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-surface-600 rounded-lg hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors bg-white dark:bg-surface-900"
+                        (click)="configDialogVisible = true">
+                        <i class="pi pi-cog text-sm"></i>
+                        Configuración
+                    </button>
                 </div>
             </div>
         </div>
@@ -624,6 +655,113 @@ interface TypeColors { icon: string; bg: string; }
             <div class="fixed inset-0 z-30" (click)="closeAllDropdowns()"></div>
         }
 
+        <!-- ── Config Modal ───────────────────────────────────────────────────── -->
+        <p-dialog
+            [(visible)]="configDialogVisible"
+            header="Configuración del formulario"
+            [modal]="true"
+            [draggable]="false"
+            [resizable]="false"
+            styleClass="config-modal w-full max-w-lg"
+            (onShow)="initConfigForm()"
+            (onHide)="configDialogVisible = false">
+            @if (form()) {
+                <div class="config-modal-content">
+                    <!-- Estado -->
+                    <div class="config-section">
+                        <label class="config-section-label">Estado</label>
+                        <label class="config-toggle">
+                            <input type="checkbox" class="sr-only"
+                                [checked]="configStatus() === 'published'"
+                                (change)="configStatus.set(configStatus() === 'published' ? 'draft' : 'published')" />
+                            <span class="config-toggle-track"
+                                [class.config-toggle-on]="configStatus() === 'published'">
+                                <span class="config-toggle-thumb"
+                                    [class.config-toggle-on]="configStatus() === 'published'"></span>
+                            </span>
+                            <span class="config-toggle-label">{{ configStatus() === 'published' ? 'Publicado' : 'Borrador' }}</span>
+                        </label>
+                    </div>
+
+                    <!-- Requiere pago + Precio -->
+                    <div class="config-section">
+                        <label class="config-section-label">Pago</label>
+                        <div class="config-row">
+                            <label class="config-check">
+                                <input type="checkbox" class="rounded"
+                                    [checked]="configRequiresPayment()"
+                                    (change)="configRequiresPayment.set($any($event.target).checked)" />
+                                <span>Requiere pago</span>
+                            </label>
+                        </div>
+                        @if (configRequiresPayment()) {
+                            <div class="config-field mt-3">
+                                <input type="number" min="0" step="1"
+                                    class="config-input"
+                                    [ngModel]="configPaymentAmount()"
+                                    (ngModelChange)="configPaymentAmount.set($event !== '' && $event != null ? +$event : undefined)"
+                                    placeholder="Precio (ej: 1000)" />
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Vista -->
+                    <div class="config-section">
+                        <label class="config-section-label">Vista</label>
+                        <select class="config-input"
+                            [ngModel]="configLayoutMode()"
+                            (ngModelChange)="configLayoutMode.set($event)">
+                            <option value="wizard">Wizard (horizontal)</option>
+                            <option value="vertical">Vertical (menú lateral)</option>
+                        </select>
+                    </div>
+
+                    <!-- Vigencia -->
+                    <div class="config-section">
+                        <label class="config-section-label">Vigencia hasta</label>
+                        <input type="date" class="config-input"
+                            [ngModel]="configValidUntil()"
+                            (ngModelChange)="configValidUntil.set($event || undefined)"
+                            placeholder="Sin límite" />
+                        <span class="config-hint">Dejar vacío si no tiene fecha de vencimiento</span>
+                    </div>
+
+                    <!-- Enlace -->
+                    <div class="config-section config-section-link">
+                        <label class="config-section-label">Enlace del formulario</label>
+                        <div class="config-link-row">
+                            <input type="text" readonly class="config-input config-input-readonly"
+                                [value]="getPublicFormUrl()" />
+                            <button type="button" class="config-copy-btn"
+                                (click)="copyFormUrl()"
+                                pTooltip="Copiar enlace" tooltipPosition="top">
+                                <i class="pi pi-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+            <ng-template pTemplate="footer">
+                <div class="config-footer">
+                    <button type="button" class="config-btn config-btn-danger"
+                        (click)="confirmDeleteForm()">
+                        <i class="pi pi-trash"></i> Eliminar
+                    </button>
+                    <div class="config-footer-right">
+                        <button type="button" class="config-btn config-btn-secondary"
+                            (click)="configDialogVisible = false">
+                            Cerrar
+                        </button>
+                        <button type="button" class="config-btn config-btn-primary"
+                            (click)="saveConfigForm()">
+                            <i class="pi pi-check"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </ng-template>
+        </p-dialog>
+
+        <p-confirmDialog />
         <p-toast />
     `
 })
@@ -633,6 +771,7 @@ export class FormEditorComponent implements OnInit {
 
     private readonly fbService = inject(FormBuilderService);
     private readonly messageService = inject(MessageService);
+    private readonly confirmationService = inject(ConfirmationService);
     private readonly router = inject(Router);
 
     readonly form = signal<Form | null>(null);
@@ -642,6 +781,13 @@ export class FormEditorComponent implements OnInit {
     readonly openQuestions = signal<Set<string>>(new Set());
     readonly typeDropdownFor = signal<string | null>(null);
     readonly addQuestionFor = signal<string | null>(null);
+    configDialogVisible = false;
+
+    readonly configStatus = signal<FormStatus>('draft');
+    readonly configRequiresPayment = signal(false);
+    readonly configPaymentAmount = signal<number | undefined>(undefined);
+    readonly configLayoutMode = signal<FormLayoutMode>('wizard');
+    readonly configValidUntil = signal<string | undefined>(undefined);
 
     readonly sortedSections = computed(() =>
         [...(this.form()?.sections ?? [])].sort((a, b) => a.order - b.order)
@@ -759,6 +905,93 @@ export class FormEditorComponent implements OnInit {
         this._refresh();
         const status = this.form()?.status === 'published' ? 'Publicado' : 'Borrador';
         this.messageService.add({ severity: 'success', summary: status, detail: `Formulario cambiado a ${status}.` });
+    }
+
+    updateLayoutMode(mode: FormLayoutMode): void {
+        this.fbService.updateForm(this.workspaceId(), this.formId(), { layoutMode: mode });
+        this._refresh();
+    }
+
+    updateRequiresPayment(value: boolean): void {
+        this.fbService.updateForm(this.workspaceId(), this.formId(), { requiresPayment: value });
+        this._refresh();
+        if (value) {
+            this.messageService.add({
+                severity: 'info',
+                summary: 'Requiere pago',
+                detail: 'Configure el precio arriba. Vincule MercadoPago en el menú Pagos.',
+                life: 5000
+            });
+        }
+    }
+
+    updateFormConfig(payload: Partial<Pick<Form, 'paymentAmount' | 'validUntil'>>): void {
+        this.fbService.updateForm(this.workspaceId(), this.formId(), payload);
+        this._refresh();
+    }
+
+    getPublicFormUrl(): string {
+        const f = this.form();
+        if (!f || typeof window === 'undefined') return '';
+        return `${window.location.origin}/forms/${f.id}`;
+    }
+
+    copyFormUrl(): void {
+        navigator.clipboard.writeText(this.getPublicFormUrl()).then(() => {
+            this.messageService.add({ severity: 'success', summary: 'Copiado', detail: 'Enlace copiado al portapapeles.' });
+        });
+    }
+
+    initConfigForm(): void {
+        const f = this.form();
+        if (!f) return;
+        this.configStatus.set(f.status);
+        this.configRequiresPayment.set(f.requiresPayment ?? false);
+        this.configPaymentAmount.set(f.paymentAmount);
+        this.configLayoutMode.set((f.layoutMode ?? 'wizard') as FormLayoutMode);
+        this.configValidUntil.set(f.validUntil ? f.validUntil.slice(0, 10) : undefined);
+    }
+
+    saveConfigForm(): void {
+        const f = this.form();
+        if (!f) return;
+        this.fbService.updateForm(this.workspaceId(), this.formId(), {
+            status: this.configStatus(),
+            requiresPayment: this.configRequiresPayment(),
+            paymentAmount: this.configRequiresPayment() ? (this.configPaymentAmount() ?? 0) : undefined,
+            layoutMode: this.configLayoutMode(),
+            validUntil: this.configValidUntil() || undefined
+        });
+        this._refresh();
+        this.configDialogVisible = false;
+        this.messageService.add({ severity: 'success', summary: 'Guardado', detail: 'Configuración actualizada.' });
+    }
+
+    duplicateForm(): void {
+        const newId = this.fbService.duplicateForm(this.workspaceId(), this.formId());
+        if (newId) {
+            this.messageService.add({ severity: 'success', summary: 'Duplicado', detail: 'Formulario duplicado.' });
+            this.router.navigate(['/admin/workspaces', this.workspaceId(), 'forms', newId]);
+        }
+    }
+
+    confirmDeleteForm(): void {
+        const f = this.form();
+        if (!f) return;
+        this.confirmationService.confirm({
+            message: `¿Está seguro de eliminar el formulario "${f.name}"? Esta acción no se puede deshacer.`,
+            header: 'Confirmar eliminación',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Eliminar',
+            rejectLabel: 'Cancelar',
+            acceptButtonStyleClass: 'p-button-danger',
+            accept: () => {
+                this.configDialogVisible = false;
+                this.fbService.deleteForm(this.workspaceId(), this.formId());
+                this.messageService.add({ severity: 'success', summary: 'Eliminado', detail: 'Formulario eliminado.' });
+                this.router.navigate(['/admin/workspaces', this.workspaceId(), 'forms']);
+            }
+        });
     }
 
     // ── Section actions ───────────────────────────────────────────────────────

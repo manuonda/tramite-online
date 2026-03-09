@@ -24,6 +24,7 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
         .nav-cancel {
             display: inline-flex;
             align-items: center;
+            gap: 8px;
             padding: 9px 14px;
             border-radius: 10px;
             font-size: 0.875rem;
@@ -87,8 +88,15 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
             }
         </div>
 
-        <!-- ── Questions ─────────────────────────────────────────────────────── -->
+        <!-- ── Questions / Payment placeholder ─────────────────────────────────── -->
         <div class="space-y-7">
+            @if (currentSection().id === '__payment__') {
+                <div class="rounded-xl border-2 border-dashed border-amber-200 bg-amber-50 p-8 text-center">
+                    <i class="pi pi-credit-card text-3xl text-amber-500 mb-3 block"></i>
+                    <p class="text-sm font-semibold text-amber-800">Pago</p>
+                    <p class="text-xs text-amber-600 mt-1">Integración de pago pendiente (MercadoPago, Stripe, etc.)</p>
+                </div>
+            } @else {
             @for (q of sortedQuestions(); track q.id) {
                 <app-question-renderer
                     [question]="q"
@@ -97,18 +105,23 @@ import { QuestionRendererComponent } from '../question-renderer/question-rendere
                     [errorMsg]="errors()[q.id] ?? ''"
                     (valueChange)="answerChange.emit({ questionId: q.id, value: $event })" />
             }
+            }
         </div>
 
         <!-- ── Navigation ────────────────────────────────────────────────────── -->
         <div class="flex items-center justify-between mt-10 pt-6 border-t border-gray-100">
 
-            <!-- Izquierda: Cancelar siempre + Anterior cuando no es el primer step -->
+            <!-- Izquierda: Inicio (si es el primero) o Anterior (si no) -->
             <div class="flex items-center gap-2">
-                <a routerLink="/home" class="nav-cancel">
-                    Cancelar
-                </a>
-
-                @if (!isFirst()) {
+                @if (isFirst()) {
+                    <a [routerLink]="cancelLink()" class="nav-cancel">
+                        <i [class]="firstStepIcon() + ' text-sm'"></i>
+                        {{ firstStepLabel() }}
+                    </a>
+                } @else {
+                    <a [routerLink]="cancelLink()" class="nav-cancel">
+                        {{ cancelLabel() }}
+                    </a>
                     <button type="button" class="nav-btn nav-prev"
                         [style.background-color]="accentColor()"
                         [style.border-color]="accentColor()"
@@ -151,6 +164,11 @@ export class StepperHorizontalComponent {
     readonly errors       = input<Partial<Record<string, string>>>({});
     readonly accentColor  = input<string>('#3b82f6');
     readonly isSubmitting = input(false);
+    readonly cancelLink   = input<string>('/home');
+    readonly cancelLabel  = input<string>('Cancelar');
+    /** Etiqueta del botón en el primer paso (ej. Inicio o Volver al editor) */
+    readonly firstStepLabel = input<string>('Inicio');
+    readonly firstStepIcon  = input<string>('pi pi-home');
 
     readonly answerChange = output<AnswerChangeEvent>();
     readonly next         = output<void>();

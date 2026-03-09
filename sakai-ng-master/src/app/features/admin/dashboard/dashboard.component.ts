@@ -135,7 +135,7 @@ export class DashboardComponent {
 
     readonly quickAccess: QuickAccessCard[] = [
         {
-            titulo: 'Workspaces',
+            titulo: 'Espacios de Trabajo',
             descripcion: 'Gestioná los espacios de trabajo, formularios, miembros y respuestas.',
             icono: 'pi pi-th-large',
             color: 'border-blue-500',

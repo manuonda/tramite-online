@@ -53,6 +53,8 @@ const MOCK_FORMS: Record<string, Form[]> = {
             name: 'Solicitud de Permiso de Obra',
             description: 'Formulario para solicitar permiso de construcción o remodelación.',
             status: 'published',
+            layoutMode: 'wizard',
+            requiresPayment: false,
             createdAt: '2026-01-15T10:00:00Z',
             updatedAt: '2026-02-01T14:30:00Z',
             sections: [
@@ -102,6 +104,8 @@ const MOCK_FORMS: Record<string, Form[]> = {
             name: 'Encuesta de Satisfacción de Trámite',
             description: 'Formulario de evaluación de la experiencia del ciudadano.',
             status: 'published',
+            layoutMode: 'wizard',
+            requiresPayment: false,
             createdAt: '2026-02-01T08:00:00Z',
             updatedAt: '2026-02-15T16:00:00Z',
             sections: [
@@ -111,6 +115,100 @@ const MOCK_FORMS: Record<string, Form[]> = {
                         { id: 'q9',  sectionId: 's4', type: 'select',  label: 'Nivel de satisfacción',    required: true,  order: 0, config: { domainId: 'd1' } },
                         { id: 'q10', sectionId: 's4', type: 'boolean', label: '¿Recomendaría el servicio?', required: false, order: 1, config: {} },
                         { id: 'q11', sectionId: 's4', type: 'text',    label: 'Comentarios adicionales',  required: false, order: 2, config: { placeholder: 'Sus comentarios...' } },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'f5',
+            workspaceId: '1',
+            name: 'Trámite Completo (Wizard 6 pasos)',
+            description: 'Ejemplo de formulario en modo wizard con 6 secciones.',
+            status: 'published',
+            layoutMode: 'wizard',
+            requiresPayment: false,
+            createdAt: '2026-02-20T10:00:00Z',
+            updatedAt: '2026-02-20T10:00:00Z',
+            sections: [
+                { id: 'sw1', formId: 'f5', title: 'Datos personales', description: 'Información del solicitante', order: 0,
+                    questions: [
+                        { id: 'qw1', sectionId: 'sw1', type: 'text', label: 'Nombre completo', required: true, order: 0, config: { placeholder: 'Ingrese su nombre...' } },
+                        { id: 'qw2', sectionId: 'sw1', type: 'text', label: 'DNI', required: true, order: 1, config: {} },
+                        { id: 'qw3', sectionId: 'sw1', type: 'text', label: 'Email', required: true, order: 2, config: {} },
+                    ]
+                },
+                { id: 'sw2', formId: 'f5', title: 'Domicilio', description: 'Dirección del solicitante', order: 1,
+                    questions: [
+                        { id: 'qw4', sectionId: 'sw2', type: 'text', label: 'Calle y número', required: true, order: 0, config: {} },
+                        { id: 'qw5', sectionId: 'sw2', type: 'text', label: 'Localidad', required: true, order: 1, config: {} },
+                        { id: 'qw6', sectionId: 'sw2', type: 'text', label: 'Código postal', required: false, order: 2, config: {} },
+                    ]
+                },
+                { id: 'sw3', formId: 'f5', title: 'Detalle del trámite', description: 'Información específica', order: 2,
+                    questions: [
+                        { id: 'qw7', sectionId: 'sw3', type: 'select', label: 'Tipo de trámite', required: true, order: 0, config: { domainId: 'd2' } },
+                        { id: 'qw8', sectionId: 'sw3', type: 'date', label: 'Fecha solicitada', required: false, order: 1, config: {} },
+                        { id: 'qw9', sectionId: 'sw3', type: 'text', label: 'Motivo', required: false, order: 2, config: { placeholder: 'Describa el motivo...' } },
+                    ]
+                },
+                { id: 'sw4', formId: 'f5', title: 'Documentación', description: 'Archivos adjuntos', order: 3,
+                    questions: [
+                        { id: 'qw10', sectionId: 'sw4', type: 'file', label: 'Documento de identidad', required: true, order: 0, config: { accept: 'image/*,.pdf' } },
+                        { id: 'qw11', sectionId: 'sw4', type: 'file', label: 'Comprobante de domicilio', required: false, order: 1, config: { accept: 'image/*,.pdf' } },
+                    ]
+                },
+                { id: 'sw5', formId: 'f5', title: 'Confirmación', description: 'Verifique los datos', order: 4,
+                    questions: [
+                        { id: 'qw12', sectionId: 'sw5', type: 'boolean', label: '¿Los datos son correctos?', required: true, order: 0, config: {} },
+                        { id: 'qw13', sectionId: 'sw5', type: 'text', label: 'Observaciones adicionales', required: false, order: 1, config: { placeholder: 'Opcional...' } },
+                    ]
+                },
+                { id: 'sw6', formId: 'f5', title: 'Finalización', description: 'Último paso', order: 5,
+                    questions: [
+                        { id: 'qw14', sectionId: 'sw6', type: 'rating', label: '¿Qué tan satisfecho está con el proceso?', required: false, order: 0, config: { stars: 5 } },
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'f6',
+            workspaceId: '1',
+            name: 'Solicitud con Menú Lateral (Vertical)',
+            description: 'Ejemplo de formulario en formato vertical con menú lateral.',
+            status: 'published',
+            layoutMode: 'vertical',
+            requiresPayment: false,
+            createdAt: '2026-02-20T11:00:00Z',
+            updatedAt: '2026-02-20T11:00:00Z',
+            sections: [
+                { id: 'sv1', formId: 'f6', title: 'Identificación', description: 'Datos del titular', order: 0,
+                    questions: [
+                        { id: 'qv1', sectionId: 'sv1', type: 'text', label: 'Razón social o nombre', required: true, order: 0, config: {} },
+                        { id: 'qv2', sectionId: 'sv1', type: 'text', label: 'CUIT / CUIL', required: true, order: 1, config: {} },
+                    ]
+                },
+                { id: 'sv2', formId: 'f6', title: 'Actividad económica', description: 'Información del negocio', order: 1,
+                    questions: [
+                        { id: 'qv3', sectionId: 'sv2', type: 'select', label: 'Rubro', required: true, order: 0, config: { domainId: 'd2' } },
+                        { id: 'qv4', sectionId: 'sv2', type: 'text', label: 'Descripción de la actividad', required: true, order: 1, config: { placeholder: 'Describa brevemente...' } },
+                        { id: 'qv5', sectionId: 'sv2', type: 'number', label: 'Superficie del local (m²)', required: false, order: 2, config: { min: 0 } },
+                    ]
+                },
+                { id: 'sv3', formId: 'f6', title: 'Ubicación', description: 'Datos del establecimiento', order: 2,
+                    questions: [
+                        { id: 'qv6', sectionId: 'sv3', type: 'text', label: 'Dirección del local', required: true, order: 0, config: {} },
+                        { id: 'qv7', sectionId: 'sv3', type: 'text', label: 'Localidad', required: true, order: 1, config: {} },
+                    ]
+                },
+                { id: 'sv4', formId: 'f6', title: 'Documentación', description: 'Archivos requeridos', order: 3,
+                    questions: [
+                        { id: 'qv8', sectionId: 'sv4', type: 'file', label: 'Constancia de inscripción', required: true, order: 0, config: { accept: '.pdf' } },
+                        { id: 'qv9', sectionId: 'sv4', type: 'file', label: 'Plano del local', required: false, order: 1, config: { accept: 'image/*,.pdf' } },
+                    ]
+                },
+                { id: 'sv5', formId: 'f6', title: 'Declaración jurada', description: 'Confirmación final', order: 4,
+                    questions: [
+                        { id: 'qv10', sectionId: 'sv5', type: 'boolean', label: 'Declaro que la información es veraz', required: true, order: 0, config: {} },
                     ]
                 }
             ]
@@ -176,6 +274,7 @@ export class FormBuilderService {
         const newForm: Form = {
             id, workspaceId, name, description,
             status: 'draft', sections: [],
+            layoutMode: 'wizard', requiresPayment: false,
             createdAt: now, updatedAt: now
         };
         this._state.update(s => ({
@@ -188,7 +287,7 @@ export class FormBuilderService {
         return id;
     }
 
-    updateForm(workspaceId: string, formId: string, payload: Partial<Pick<Form, 'name' | 'description' | 'status'>>): void {
+    updateForm(workspaceId: string, formId: string, payload: Partial<Pick<Form, 'name' | 'description' | 'status' | 'layoutMode' | 'requiresPayment' | 'paymentAmount' | 'validUntil'>>): void {
         this._updateForm(workspaceId, formId, f => ({ ...f, ...payload, updatedAt: new Date().toISOString() }));
     }
 

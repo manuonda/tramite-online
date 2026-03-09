@@ -25,16 +25,20 @@ type FilterTab = 'all' | 'draft' | 'published';
     ],
     styles: [`
         .form-card {
-            transition: box-shadow 0.2s, border-color 0.2s, transform 0.2s;
+            background: var(--surface-card);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: box-shadow 0.2s, border-color 0.2s;
             display: flex;
             flex-direction: column;
-            min-height: 240px;
+            min-height: 260px;
+            overflow: hidden;
         }
         .form-card:hover {
-            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-            border-color: #e5e7eb;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            border-color: var(--surface-400);
         }
-        :host-context(.dark) .form-card:hover { border-color: var(--surface-600); }
         .form-card-icon {
             width: 44px; height: 44px;
             display: flex; align-items: center; justify-content: center;
@@ -55,9 +59,8 @@ type FilterTab = 'all' | 'draft' | 'published';
             display: inline-flex; align-items: center; gap: 0.25rem;
             padding: 0.2rem 0.5rem; border-radius: 6px;
             font-size: 0.7rem; font-weight: 500;
-            background: #f1f5f9; color: #475569;
+            background: var(--surface-100); color: var(--text-color-secondary);
         }
-        :host-context(.dark) .form-card-stat { background: var(--surface-800); color: #94a3b8; }
         .form-card-btn {
             flex: 1;
             display: flex; align-items: center; justify-content: center; gap: 0.5rem;
@@ -68,9 +71,9 @@ type FilterTab = 'all' | 'draft' | 'published';
             border: none; cursor: pointer;
         }
         .form-card-btn-primary {
-            background: #2563eb; color: white;
+            background: var(--primary-color); color: var(--primary-contrast);
         }
-        .form-card-btn-primary:hover { background: #1d4ed8; }
+        .form-card-btn-primary:hover { background: var(--primary-600); }
         .form-card-btn-success {
             background: #10b981; color: white;
         }
@@ -87,16 +90,16 @@ type FilterTab = 'all' | 'draft' | 'published';
             font-weight: 500;
             cursor: pointer;
             transition: all 0.15s;
-            border: 1.5px solid #e5e7eb;
-            background: white;
-            color: #6b7280;
+            border: 1.5px solid var(--surface-border);
+            background: var(--surface-card);
+            color: var(--text-color-secondary);
             white-space: nowrap;
         }
-        .filter-tab:hover { background: #f9fafb; }
+        .filter-tab:hover { background: var(--surface-hover); }
         .filter-tab.active {
-            background: #1d4ed8;
-            border-color: #1d4ed8;
-            color: white;
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--primary-contrast);
         }
     `],
     template: `
@@ -172,72 +175,36 @@ type FilterTab = 'all' | 'draft' | 'published';
         } @else {
             <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
                 @for (form of filteredForms(); track form.id) {
-                    <div class="form-card workspace-card overflow-hidden">
+                    <div class="form-card">
                         <!-- Status bar -->
-                        <div class="h-1.5 rounded-t-xl"
+                        <div class="h-1.5 flex-shrink-0"
                             [style.background]="form.status === 'published' ? 'linear-gradient(90deg, #10b981, #059669)' : 'linear-gradient(90deg, #6366f1, #4f46e5)'"></div>
-                        <div class="p-5 flex flex-col flex-1">
-                            <div class="flex items-start justify-between gap-3">
-                                <!-- Icon + info -->
-                                <div class="flex items-start gap-4">
-                                    <div class="form-card-icon"
-                                        [class.published]="form.status === 'published'"
-                                        [class.draft]="form.status !== 'published'">
-                                        <i class="pi pi-file-edit text-lg"></i>
-                                    </div>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="flex items-center gap-2 flex-wrap">
-                                            <button
-                                                class="text-base font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 truncate text-left transition-colors"
-                                                (click)="goToEditor(form)">
-                                                {{ form.name }}
-                                            </button>
-                                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold shrink-0"
-                                                [class]="form.status === 'published'
-                                                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
-                                                    : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'">
-                                                <span class="w-1.5 h-1.5 rounded-full shrink-0"
-                                                    [class]="form.status === 'published' ? 'bg-emerald-500' : 'bg-indigo-500'"></span>
-                                                {{ form.status === 'published' ? 'Publicado' : 'Borrador' }}
-                                            </span>
-                                        </div>
-                                        @if (form.description) {
-                                            <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{{ form.description }}</p>
-                                        }
-                                    </div>
-                                </div>
-
-                                <!-- Menu -->
-                                <div class="menu-btn relative shrink-0 z-20">
-                                    <button
-                                        class="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-surface-700 text-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
-                                        (click)="toggleMenu(form)"
-                                        title="Más opciones">
-                                        <i class="pi pi-ellipsis-v text-base"></i>
-                                    </button>
-                                    @if (menuOpenFor() === form.id) {
-                                        <div class="absolute right-0 top-10 z-[60] bg-white dark:bg-surface-900 border border-gray-200 dark:border-surface-700 rounded-xl shadow-xl py-1.5 min-w-[180px]">
-                                            <button class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors text-left"
-                                                (click)="goToEditor(form); closeMenu()">
-                                                <i class="pi pi-pencil text-sm text-blue-500"></i> Editar
-                                            </button>
-                                            <button class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors text-left"
-                                                (click)="openEdit(form); closeMenu()">
-                                                <i class="pi pi-tag text-sm text-gray-500"></i> Renombrar
-                                            </button>
-                                            <button class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-surface-800 transition-colors text-left"
-                                                (click)="duplicate(form); closeMenu()">
-                                                <i class="pi pi-copy text-sm text-gray-500"></i> Duplicar
-                                            </button>
-                                            <hr class="my-1 border-gray-100 dark:border-surface-700">
-                                            <button class="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-950 transition-colors text-left"
-                                                (click)="confirmDelete(form); closeMenu()">
-                                                <i class="pi pi-trash text-sm"></i> Eliminar
-                                            </button>
-                                        </div>
-                                    }
+                        <div class="p-5 flex flex-col flex-1 min-h-0">
+                            <!-- Header: título + badge -->
+                            <div class="flex items-start justify-between gap-2 mb-3">
+                                <div class="min-w-0 flex-1">
+                                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white line-clamp-2 block mb-1 leading-snug">
+                                        <button type="button"
+                                            class="hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-left w-full"
+                                            (click)="goToEditor(form)">
+                                            {{ form.name }}
+                                        </button>
+                                    </h3>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+                                        [class]="form.status === 'published'
+                                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300'
+                                            : 'bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'">
+                                        <span class="w-1.5 h-1.5 rounded-full"
+                                            [class]="form.status === 'published' ? 'bg-emerald-500' : 'bg-indigo-500'"></span>
+                                        {{ form.status === 'published' ? 'Publicado' : 'Borrador' }}
+                                    </span>
                                 </div>
                             </div>
+
+                            <!-- Descripción -->
+                            @if (form.description) {
+                                <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2 mb-4">{{ form.description }}</p>
+                            }
 
                             <!-- Stats row -->
                             <div class="mt-auto pt-4 flex items-center justify-between flex-wrap gap-2">
@@ -337,9 +304,6 @@ type FilterTab = 'all' | 'draft' | 'published';
         <p-toast />
         <p-confirmDialog />
 
-        @if (menuOpenFor()) {
-            <div class="fixed inset-0 z-[55]" (click)="closeMenu()"></div>
-        }
     `
 })
 export class FormListComponent implements OnInit {
@@ -353,7 +317,6 @@ export class FormListComponent implements OnInit {
 
     readonly activeTab = signal<FilterTab>('all');
     readonly searchQuery = signal('');
-    readonly menuOpenFor = signal<string | null>(null);
     readonly editingForm = signal<Form | null>(null);
     dialogVisible = false;
     readonly isSaving = signal(false);
@@ -394,14 +357,6 @@ export class FormListComponent implements OnInit {
 
     goToEditor(form: Form): void {
         this.router.navigate(['/admin/workspaces', this.workspaceId(), 'forms', form.id]);
-    }
-
-    toggleMenu(form: Form): void {
-        this.menuOpenFor.set(this.menuOpenFor() === form.id ? null : form.id);
-    }
-
-    closeMenu(): void {
-        this.menuOpenFor.set(null);
     }
 
     openCreate(): void {
@@ -452,7 +407,7 @@ export class FormListComponent implements OnInit {
 
     confirmDelete(form: Form): void {
         this.confirmationService.confirm({
-            message: `¿Eliminar el formulario <strong>${form.name}</strong>?`,
+            message: `¿Está seguro de eliminar el formulario "${form.name}"? Esta acción no se puede deshacer.`,
             header: 'Confirmar eliminación',
             icon: 'pi pi-exclamation-triangle',
             acceptLabel: 'Eliminar',

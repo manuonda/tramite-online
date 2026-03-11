@@ -12,11 +12,12 @@ Los usuarios crean workspaces, diseñan formularios dinámicos, recolectan respu
 | Capa | Tecnología |
 |---|---|
 | Lenguaje | Java 25 |
-| Framework | Spring Boot 4.0.1 |
-| Modularidad | Spring Modulith 2.0 |
+| Framework | Spring Boot 4.0.3 |
+| Modularidad | Spring Modulith 2.0.3 |
 | Persistencia | Spring Data JPA + Flyway |
 | Base de datos | PostgreSQL (Docker Compose) |
-| Seguridad | Spring Security + JWT |
+| Seguridad | Spring Security + JWT (fase 2) |
+| Mappers | MapStruct 1.6.3 |
 | Build | Maven Wrapper |
 | Frontend | Angular 21 (repo: `sakai-ng-master/`) |
 
@@ -24,34 +25,42 @@ Los usuarios crean workspaces, diseñan formularios dinámicos, recolectan respu
 
 ## 2. Decisión Arquitectónica — MVP-First
 
-### Qué se eligió: Layered Architecture + Spring Modulith
+### Qué se eligió: Clean Architecture + Spring Modulith
 
-Para un MVP se elige **Arquitectura en Capas** dentro de cada módulo, con **Spring Modulith**
+Se usa **Clean Architecture** (Robert C. Martin) dentro de cada módulo, con **Spring Modulith**
 para enforcer las fronteras entre módulos.
 
-**No se usa Hexagonal completa porque:**
-- Hexagonal requiere puertos de entrada (interfaces de use cases) + puertos de salida (interfaces de repositorios) → mucho boilerplate para un MVP
-- Los use cases son clases concretas, no hay interfaz para cada uno
-- Si el proyecto crece, agregar los puertos de entrada es un refactor menor y controlado
-
-**Lo que SÍ se toma de Hexagonal:**
-- Los repositorios son interfaces en `domain/` (puerto de salida)
-- Las implementaciones JPA viven en `infrastructure/` (adaptador)
-- El dominio no depende de Spring ni JPA
+**Regla central:** las dependencias siempre apuntan hacia adentro. El dominio no conoce nada del exterior.
 
 ```
-Controller → UseCase (clase concreta) → Repository (interfaz) → JPA Adapter → PostgreSQL
+Entities (domain)          ← núcleo, sin dependencias externas
+    ▲
+Use Cases (application)    ← orquesta el dominio, sin conocer JPA ni Spring MVC
+    ▲
+Interface Adapters         ← controllers, mappers, repository adapters
+    ▲
+Frameworks & Drivers       ← JPA, Spring MVC, PostgreSQL
+```
+
+**Decisiones concretas para el MVP:**
+- Los repositorios son interfaces en `domain/` — los use cases solo dependen de esas interfaces
+- Las implementaciones JPA viven en `infrastructure/` — adaptadores intercambiables
+- Los use cases son clases concretas (sin interfaz de entrada) — suficiente para MVP
+- El dominio no importa Spring ni JPA
+
+```
+Controller → UseCase → Repository (interfaz dominio) → JPA Adapter → PostgreSQL
 ```
 
 ### Comparación
 
-| Factor | Hexagonal completa | Layered + Modulith (MVP) |
+| Factor | Clean Architecture MVP | Clean Architecture Maduro |
 |---|---|---|
-| Interfaces de use case | Si | No |
+| Interfaces de use case | No | Si |
 | Interfaces de repositorio | Si | Si |
-| Velocidad de desarrollo | Lenta | Alta |
-| Testabilidad | Buena | Buena |
-| Fronteras entre módulos | Manual | Spring Modulith |
+| Dominio independiente de frameworks | Si | Si |
+| Velocidad de desarrollo | Alta | Media |
+| Fronteras entre módulos | Spring Modulith | Spring Modulith |
 
 ---
 
@@ -400,7 +409,7 @@ Al finalizar ejecutar: ./mvnw test -Dtest=ModularityTests
 
 | Fase | Estado | Qué se hace |
 |---|---|---|
-| **MVP** | Actual | Layered + Modulith, use cases concretos, domain events síncronos |
-| **Modulith Maduro** | Siguiente | Eventos asíncronos (outbox pattern), proyecciones JPA, OpenAPI completo |
-| **Hexagonal Parcial** | Si escala | Agregar interfaces de use cases (inbound ports), tests de dominio puro sin Spring |
+| **MVP** | Actual | Clean Architecture + Modulith, use cases concretos, domain events síncronos, sin seguridad |
+| **Modulith Maduro** | Siguiente | Seguridad JWT, eventos asíncronos (outbox pattern), proyecciones JPA, OpenAPI completo |
+| **Clean Architecture Maduro** | Si escala | Agregar interfaces de use cases (inbound ports), tests de dominio puro sin Spring |
 | **Microservicios** | Si escala mucho | Extraer módulos de alta carga, Kafka, API Gateway |

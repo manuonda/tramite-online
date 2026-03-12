@@ -67,10 +67,10 @@ import { Form } from '@features/admin/workspace/features/form-builder/models/for
         }
         .ws-header {
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             gap: 1rem;
             margin-bottom: 1.25rem;
-            padding: 1rem 1.25rem;
+            padding: 1.25rem 1.5rem;
             background: #ffffff;
             border-radius: 12px;
             border: 1px solid #e5e7eb;
@@ -88,16 +88,27 @@ import { Form } from '@features/admin/workspace/features/form-builder/models/for
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         .ws-info { flex: 1; min-width: 0; }
+        .ws-label {
+            font-size: 0.625rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #64748b;
+            margin: 0 0 0.375rem;
+        }
         .ws-name {
-            font-size: 1rem;
+            font-size: 1.0625rem;
             font-weight: 700;
             color: #1e293b;
             letter-spacing: -0.01em;
+            margin: 0 0 0.5rem;
+            line-height: 1.3;
         }
         .ws-desc {
             font-size: 0.8125rem;
             color: #64748b;
-            margin-top: 0.125rem;
+            line-height: 1.5;
+            margin: 0;
         }
         .ws-badge {
             font-size: 0.8125rem;
@@ -288,9 +299,10 @@ import { Form } from '@features/admin/workspace/features/form-builder/models/for
                                 <i [class]="(entry.workspace.icon || 'pi pi-building') + ' text-lg'"></i>
                             </div>
                             <div class="ws-info">
-                                <div class="ws-name">{{ entry.workspace.name }}</div>
+                                <p class="ws-label">Espacio de trabajo</p>
+                                <h2 class="ws-name">{{ entry.workspace.name }}</h2>
                                 @if (entry.workspace.description) {
-                                    <div class="ws-desc">{{ entry.workspace.description }}</div>
+                                    <p class="ws-desc">{{ entry.workspace.description }}</p>
                                 }
                             </div>
                             <span class="ws-badge">

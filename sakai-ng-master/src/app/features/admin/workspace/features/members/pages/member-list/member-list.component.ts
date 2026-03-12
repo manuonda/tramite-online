@@ -22,46 +22,143 @@ import {
         ButtonModule, DialogModule, InputTextModule, ToastModule,
     ],
     providers: [MessageService],
+    styles: [`
+        .member-header-icon {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            box-shadow: 0 4px 12px rgba(14,165,233,0.3);
+        }
+        .member-search {
+            background: var(--surface-card);
+            border: 1.5px solid var(--surface-border);
+            border-radius: 10px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .member-search:focus-within {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 15%, transparent);
+        }
+        .member-search input, .member-search .p-inputtext {
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        .member-row {
+            background: var(--surface-card);
+            border: 1px solid var(--surface-border);
+            border-radius: 12px;
+            transition: box-shadow 0.2s, border-color 0.2s;
+        }
+        .member-row:hover {
+            border-color: var(--surface-300);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        :host-context(.app-dark) .member-row:hover {
+            border-color: var(--surface-600);
+        }
+        .member-role-select {
+            appearance: none;
+            padding: 0.35rem 1.75rem 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: opacity 0.15s;
+        }
+        .member-role-select:hover { opacity: 0.9; }
+        .member-role-select:focus { outline: none; }
+        .member-action-btn {
+            width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px;
+            border: none;
+            background: transparent;
+            color: var(--text-color-secondary);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .member-action-btn:hover {
+            background: var(--surface-hover);
+            color: var(--text-color);
+        }
+        .member-action-btn.member-action-danger:hover {
+            background: rgba(239,68,68,0.1);
+            color: #ef4444;
+        }
+        .member-action-btn.member-action-send:hover {
+            background: rgba(59,130,246,0.1);
+            color: #3b82f6;
+        }
+        .member-pagination-btn {
+            min-width: 36px; height: 36px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px;
+            font-size: 0.8125rem;
+            font-weight: 500;
+            border: 1px solid var(--surface-border);
+            background: var(--surface-card);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .member-pagination-btn:hover:not(:disabled) {
+            background: var(--surface-hover);
+            border-color: var(--surface-400);
+        }
+        .member-pagination-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .member-pagination-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: var(--primary-contrast);
+        }
+        .empty-state-icon {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+            opacity: 0.15;
+        }
+    `],
     template: `
         <p-toast position="top-right" />
 
         <!-- ─── Header ─────────────────────────────────────────────────── -->
         <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="bg-linear-to-br from-orange-500 to-orange-600 p-3 rounded-2xl text-white shadow-lg shadow-orange-200 dark:shadow-orange-900/40">
-                    <i class="pi pi-users text-lg"></i>
+            <div class="flex items-center gap-4">
+                <div class="member-header-icon w-12 h-12 rounded-xl flex items-center justify-center text-white">
+                    <i class="pi pi-users text-xl"></i>
                 </div>
                 <div>
                     <div class="flex items-center gap-2 flex-wrap">
-                        <span class="text-xl font-bold text-gray-800 dark:text-white">Miembros</span>
-                        <span class="text-xs bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded-full font-semibold">
+                        <h2 class="text-lg font-bold text-gray-900 dark:text-white m-0">Miembros</h2>
+                        <span class="text-xs bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 px-2.5 py-1 rounded-full font-semibold">
                             {{ members().length }} total
                         </span>
                     </div>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
-                        Usuarios con acceso a este workspace
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-0.5 m-0">
+                        Usuarios con acceso a este espacio de trabajo
                     </p>
                 </div>
             </div>
             <p-button
                 label="Invitar miembro"
                 icon="pi pi-user-plus"
-                severity="warn"
+                severity="primary"
                 size="small"
                 (onClick)="openInvite()"
             />
         </div>
 
         <!-- ─── Search ─────────────────────────────────────────────────── -->
-        <div class="mb-4">
-            <div class="relative">
-                <span class="absolute left-0 inset-y-0 flex items-center pl-3 pointer-events-none z-10">
-                    <i class="pi pi-search text-gray-400 text-sm"></i>
+        <div class="mb-5">
+            <div class="member-search relative max-w-md">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    <i class="pi pi-search text-sm"></i>
                 </span>
                 <input
                     type="text"
                     pInputText
-                    class="w-full pl-10 text-sm"
+                    class="w-full pl-10 pr-4 py-2.5 text-sm border-0 bg-transparent"
                     placeholder="Buscar por nombre o email..."
                     [ngModel]="searchQuery()"
                     (ngModelChange)="onSearchQueryChange($event)"
@@ -71,17 +168,12 @@ import {
 
         <!-- ─── Member list ────────────────────────────────────────────── -->
         @if (filteredMembers().length > 0) {
-            <div class="card shadow-lg p-0 overflow-hidden">
-                @for (member of paginatedMembers(); track member.id; let last = $last) {
-                    <div
-                        class="flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-                        [class.border-b]="!last"
-                        [class.border-gray-100]="!last"
-                        [class.dark:border-gray-700]="!last"
-                    >
+            <div class="space-y-3">
+                @for (member of paginatedMembers(); track member.id) {
+                    <div class="member-row flex items-center gap-4 px-5 py-4">
                         <!-- Avatar -->
                         <div
-                            class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 select-none"
+                            class="w-11 h-11 rounded-full flex items-center justify-center text-sm font-bold shrink-0 select-none"
                             [style.background]="member.avatarColor"
                             [style.color]="getAvatarText(member.name)"
                         >
@@ -90,22 +182,22 @@ import {
 
                         <!-- Name + email -->
                         <div class="flex-1 min-w-0">
-                            <div class="font-semibold text-gray-800 dark:text-white text-sm truncate">
+                            <div class="font-semibold text-gray-900 dark:text-white text-sm truncate">
                                 {{ member.name }}
                             </div>
-                            <div class="text-xs text-gray-400 truncate">{{ member.email }}</div>
+                            <div class="text-xs text-gray-500 dark:text-gray-400 truncate">{{ member.email }}</div>
                         </div>
 
                         <!-- Joined date -->
-                        <div class="hidden lg:block text-xs text-gray-400 shrink-0 w-28 text-right">
+                        <div class="hidden lg:block text-xs text-gray-500 dark:text-gray-400 shrink-0 w-28 text-right">
                             desde {{ formatDate(member.joinedAt) }}
                         </div>
 
-                        <!-- Role selector (styled as badge) -->
+                        <!-- Role selector -->
                         <div class="shrink-0">
                             <div class="relative">
                                 <select
-                                    class="appearance-none pl-2.5 pr-6 py-1 text-xs font-semibold rounded-full border border-transparent cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-1 transition-colors"
+                                    class="member-role-select"
                                     [style.background]="roleConfig[member.role].bg"
                                     [style.color]="roleConfig[member.role].color"
                                     [value]="member.role"
@@ -115,11 +207,7 @@ import {
                                         <option [value]="role">{{ roleConfig[role].label }}</option>
                                     }
                                 </select>
-                                <i
-                                    class="pi pi-chevron-down absolute right-1.5 top-1/2 -translate-y-1/2 pointer-events-none"
-                                    style="font-size: 8px"
-                                    [style.color]="roleConfig[member.role].color"
-                                ></i>
+                                <i class="pi pi-chevron-down absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-[10px]" [style.color]="roleConfig[member.role].color"></i>
                             </div>
                         </div>
 
@@ -142,7 +230,7 @@ import {
                         <div class="flex items-center gap-1 shrink-0">
                             @if (member.status === 'pending') {
                                 <button
-                                    class="p-1.5 rounded-lg text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 transition-colors"
+                                    class="member-action-btn member-action-send"
                                     title="Reenviar invitación"
                                     (click)="resendInvitation(member.id)"
                                 >
@@ -150,14 +238,14 @@ import {
                                 </button>
                             }
                             <button
-                                class="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
+                                class="member-action-btn"
                                 title="Editar miembro"
                                 (click)="openEdit(member)"
                             >
                                 <i class="pi pi-pencil text-sm"></i>
                             </button>
                             <button
-                                class="p-1.5 rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-700 transition-colors"
+                                class="member-action-btn member-action-danger"
                                 title="Eliminar miembro"
                                 (click)="removeMember(member)"
                             >
@@ -167,13 +255,15 @@ import {
                     </div>
                 }
             </div>
-            <div class="flex flex-col sm:flex-row gap-3 sm:items-center justify-between mt-3 px-1">
-                <div class="text-xs text-gray-500 dark:text-gray-400">
+
+            <!-- Pagination -->
+            <div class="flex flex-col sm:flex-row gap-3 sm:items-center justify-between mt-5 pt-4 border-t border-gray-200 dark:border-surface-700">
+                <div class="text-sm text-gray-500 dark:text-gray-400">
                     Mostrando {{ pageStart() }}-{{ pageEnd() }} de {{ filteredMembers().length }} miembros
                 </div>
                 <div class="flex items-center gap-1.5">
                     <button
-                        class="px-2.5 py-1.5 text-xs rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="member-pagination-btn px-3"
                         [disabled]="currentPage() === 1"
                         (click)="goToPreviousPage()"
                     >
@@ -181,23 +271,15 @@ import {
                     </button>
                     @for (page of pages(); track page) {
                         <button
-                            class="w-8 h-8 text-xs rounded-md border transition-colors"
-                            [class.border-orange-500]="currentPage() === page"
-                            [class.bg-orange-500]="currentPage() === page"
-                            [class.text-white]="currentPage() === page"
-                            [class.border-gray-200]="currentPage() !== page"
-                            [class.dark:border-gray-700]="currentPage() !== page"
-                            [class.text-gray-600]="currentPage() !== page"
-                            [class.dark:text-gray-300]="currentPage() !== page"
-                            [class.hover:bg-gray-50]="currentPage() !== page"
-                            [class.dark:hover:bg-gray-800]="currentPage() !== page"
+                            class="member-pagination-btn"
+                            [class.active]="currentPage() === page"
                             (click)="goToPage(page)"
                         >
                             {{ page }}
                         </button>
                     }
                     <button
-                        class="px-2.5 py-1.5 text-xs rounded-md border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="member-pagination-btn px-3"
                         [disabled]="currentPage() === totalPages()"
                         (click)="goToNextPage()"
                     >
@@ -208,30 +290,32 @@ import {
 
         } @else if (searchQuery()) {
             <!-- Search empty state -->
-            <div class="card p-10 text-center shadow-sm">
-                <i class="pi pi-search text-gray-300 dark:text-gray-600 text-4xl mb-3 block"></i>
-                <h4 class="font-semibold text-gray-700 dark:text-gray-200 mb-1">Sin resultados</h4>
-                <p class="text-sm text-gray-400">
+            <div class="rounded-xl border border-gray-200 dark:border-surface-700 bg-white dark:bg-surface-900 p-12 text-center">
+                <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-surface-800 flex items-center justify-center mx-auto mb-4">
+                    <i class="pi pi-search text-2xl text-gray-400"></i>
+                </div>
+                <h4 class="font-semibold text-gray-800 dark:text-white mb-1">Sin resultados</h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400 m-0">
                     No hay miembros que coincidan con
-                    <span class="font-medium text-gray-600 dark:text-gray-300">"{{ searchQuery() }}"</span>.
+                    <span class="font-medium text-gray-700 dark:text-gray-300">"{{ searchQuery() }}"</span>.
                 </p>
             </div>
 
         } @else {
             <!-- No members empty state -->
-            <div class="card border-l-4 border-orange-400 shadow-lg">
-                <div class="p-10 text-center">
-                    <div class="bg-orange-50 dark:bg-orange-950/50 p-4 rounded-full w-16 h-16 mx-auto mb-4 flex items-center justify-center">
-                        <i class="pi pi-users text-orange-500 text-2xl"></i>
+            <div class="rounded-xl border border-gray-200 dark:border-surface-700 bg-white dark:bg-surface-900 overflow-hidden">
+                <div class="p-12 text-center">
+                    <div class="empty-state-icon rounded-2xl w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+                        <i class="pi pi-users text-4xl text-white"></i>
                     </div>
-                    <h4 class="font-semibold text-lg text-gray-800 dark:text-white mb-1">Sin miembros adicionales</h4>
+                    <h4 class="font-semibold text-lg text-gray-900 dark:text-white mb-1">Sin miembros adicionales</h4>
                     <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">
-                        Invitá usuarios para colaborar en este workspace.
+                        Invitá usuarios para colaborar en este espacio de trabajo.
                     </p>
                     <p-button
-                        label="Invitar Miembro"
+                        label="Invitar miembro"
                         icon="pi pi-user-plus"
-                        severity="warn"
+                        severity="primary"
                         size="small"
                         (onClick)="openInvite()"
                     />
@@ -340,7 +424,7 @@ import {
                     <p-button
                         label="Enviar invitación"
                         icon="pi pi-send"
-                        severity="warn"
+                        severity="primary"
                         size="small"
                         type="submit"
                         [disabled]="inviteForm.invalid || inviting()"
@@ -410,7 +494,7 @@ import {
                     <p-button
                         label="Guardar cambios"
                         icon="pi pi-check"
-                        severity="warn"
+                        severity="primary"
                         size="small"
                         type="submit"
                         [disabled]="editForm.invalid || savingEdit()"

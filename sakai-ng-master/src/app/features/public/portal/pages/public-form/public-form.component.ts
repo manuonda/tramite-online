@@ -52,28 +52,30 @@ import { StepperVerticalComponent } from './components/stepper-vertical/stepper-
         } @else {
             <div class="fade-in">
 
-                <!-- ── Form header ─────────────────────────────────────────────── -->
+                <!-- ── Form header (breadcrumb) ─────────────────────────────────── -->
                 <div class="border-b border-gray-100 bg-white">
-                    <div class="max-w-4xl mx-auto px-6 py-3.5">
-                        <div class="flex items-start gap-3">
-                            <!-- Workspace icon -->
-                            <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5"
+                    <div class="max-w-4xl mx-auto px-6 py-2.5">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
                                 [style.background-color]="workspace()!.color + '20'"
                                 [style.color]="workspace()!.color">
-                                <i [class]="workspace()!.icon + ' text-base'"></i>
+                                <i [class]="workspace()!.icon + ' text-sm'"></i>
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-[10px] font-semibold uppercase tracking-wider m-0 leading-none text-gray-500">
-                                    Espacio de trabajo
-                                </p>
-                                <h1 class="text-lg font-semibold text-gray-900 leading-snug mt-1 mb-0">{{ form()!.name }}</h1>
-                            </div>
+                            <nav class="flex items-center gap-1.5 text-sm min-w-0 flex-1">
+                                <span class="text-gray-500 truncate">{{ workspace()!.name }}</span>
+                                <i class="pi pi-chevron-right text-[10px] text-gray-400 shrink-0"></i>
+                                <span class="font-semibold text-gray-900 truncate">{{ form()!.name }}</span>
+                            </nav>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Accent line -->
-                        <div class="mt-3 h-1 rounded-full"
-                            [style.background-color]="workspace()!.color + '30'">
-                            <div class="h-1 rounded-full transition-all duration-500"
+                <!-- ── Card: nombre + barra de progreso ──────────────────────────── -->
+                <div class="max-w-4xl mx-auto px-6 pt-4 pb-4">
+                    <div class="rounded-xl border border-gray-200 shadow-sm px-5 py-4" style="background-color: #c8d0da !important;">
+                        <h1 class="text-base font-semibold text-gray-900 mb-3">{{ form()!.name }}</h1>
+                        <div class="h-1.5 rounded-full bg-gray-100 overflow-hidden">
+                            <div class="h-full rounded-full transition-all duration-500"
                                 [style.background-color]="workspace()!.color"
                                 [style.width]="progressPct() + '%'"></div>
                         </div>
@@ -81,7 +83,7 @@ import { StepperVerticalComponent } from './components/stepper-vertical/stepper-
                 </div>
 
                 <!-- ── Wizard body ─────────────────────────────────────────────── -->
-                <div class="max-w-4xl mx-auto px-6 py-8">
+                <div class="max-w-4xl mx-auto px-6 py-4">
                     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
 
                         @if (layoutMode() === 'horizontal') {

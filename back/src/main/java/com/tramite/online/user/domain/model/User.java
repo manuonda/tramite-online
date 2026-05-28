@@ -1,10 +1,21 @@
 package com.tramite.online.user.domain.model;
 
 
-public class User {
-    private Long idUser;
-    private String username;
-    private String password;
-    private String email;
+/**
+ * Record Pojo User
+ * @param idUser
+ */
+public record User (
+         Long idUser,
+         String userName,
+         String password,
+         String email
 
+){
+
+    public User{
+        if(userName == null || userName.isBlank()) {
+            throw new IllegalStateException("Username is null or empty");
+        }
+    }
 }

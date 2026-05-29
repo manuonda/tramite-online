@@ -1,5 +1,7 @@
 package com.tramite.online.user.domain.model;
 
+import com.tramite.online.user.domain.model.vo.Email;
+import com.tramite.online.user.domain.model.vo.UserName;
 
 /**
  * Record Pojo User
@@ -7,15 +9,10 @@ package com.tramite.online.user.domain.model;
  */
 public record User (
          Long idUser,
-         String userName,
+         UserName userName,
          String password,
-         String email
+         Email email
 
 ){
 
-    public User{
-        if(userName == null || userName.isBlank()) {
-            throw new IllegalStateException("Username is null or empty");
-        }
-    }
 }

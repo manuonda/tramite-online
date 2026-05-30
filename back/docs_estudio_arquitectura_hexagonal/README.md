@@ -96,3 +96,49 @@ Para adoptar patrones de forma incremental, ver la **hoja de ruta por fases** en
 ---
 
 *Material de estudio — no sustituye la documentación oficial del proyecto ni el libro de Enrique Medina.*
+
+
+
+● El UserRepositoryAdapter implementa UserRepository de application. Es el puente:
+
+  UserRepository (port.out / application)
+          ↑ implements
+  UserRepositoryAdapter (infraestructure/adapters/output/persistence)
+          usa → UserJpaRepository
+          usa → UserMapper
+
+  ---
+  Las clases a crear en orden
+
+  infraestructure/adapters/output/persistence/
+  │
+  ├── entity/
+  │   └── UserEntity.java          ← mover el que ya tienes aquí
+  │
+  ├── repository/
+  │   └── UserJpaRepository.java   ← extends JpaRepository<UserEntity, Long>
+  │
+  ├── mapper/
+  │   └── UserMapper.java          ← User (dominio) ↔ UserEntity (JPA)
+  │
+  └── UserRepositoryAdapter.java   ← implements UserRepository ✓
+
+  ---
+  Flujo completo cuando el Handler llama al port.out
+
+  CreateUserHandler
+    │
+    │  userRepository.save(user)   ← llama al port.out (interfaz)
+    ▼
+  UserRepository (interfaz)
+    │
+    │  Spring inyecta la implementación automáticamente
+    ▼
+  UserRepositoryAdapter            ← infraestructura, nadie más lo conoce
+    │
+    ├── mapper.toEntity(user)      ← User → UserEntity
+    ├── jpaRepository.save(entity) ← persiste en BD
+    └── mapper.toDomain(saved)     ← UserEntity → User
+
+  ¿Empezamos por UserEntity → UserJpaRepository → UserMapper → UserRepositoryAdapter en ese orden?
+

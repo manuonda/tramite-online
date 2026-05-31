@@ -3,6 +3,7 @@ package com.tramite.online.user.domain.model;
 import com.tramite.online.user.domain.model.vo.Email;
 import com.tramite.online.user.domain.model.vo.Password;
 import com.tramite.online.user.domain.model.vo.UserName;
+import com.tramite.online.user.domain.model.vo.IdUser;
 
 
 /**
@@ -13,12 +14,14 @@ import com.tramite.online.user.domain.model.vo.UserName;
  * @param email
  */
 public record User (
-         Long IdUser,
+         IdUser idUser,
          UserName userName,
          Password password,
          Email email
 
 ){
+
+   
 
     /**
      * Factory method to create a new User instance with validation
@@ -27,8 +30,8 @@ public record User (
      * @param Email
      * @return
      */
-      public static User create(String UserName, String Password, String Email) {
-          return new User(null, new UserName(UserName), new Password(Password), new Email(Email));
+      public static User create(String userName, String password, String email) {
+          return new User(null, new UserName(userName), new Password(password), new Email(email));
       }
 
     /**
@@ -39,8 +42,8 @@ public record User (
      * @param Email
      * @return
      */
-      public static User reconstitute(Long IdUser, String UserName, String Password, String Email) {
-          return new User(IdUser, new UserName(UserName), new Password(Password), new Email(Email));
+      public static User reconstitute(Long idUser, String userName, String password, String email) {
+          return new User(new IdUser(idUser), new UserName(userName), new Password(password), new Email(email));
       }
 
 }

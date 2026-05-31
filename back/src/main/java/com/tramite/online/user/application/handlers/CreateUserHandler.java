@@ -1,4 +1,4 @@
-package com.tramite.online.user.application;
+package com.tramite.online.user.application.handlers;
 
 import com.tramite.online.shared.annotation.ApplicationService;
 import com.tramite.online.user.application.ports.in.CreateUserUseCase;

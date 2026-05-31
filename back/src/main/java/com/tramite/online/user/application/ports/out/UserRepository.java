@@ -17,7 +17,7 @@ public interface UserRepository {
 
     User save(User user);
     Optional<User> findById(Long id);
-    List<User> findAll();
+    List<User> findAll(User user);
     boolean exists(Long id);
     void delete(Long id);
 }
